@@ -14,6 +14,9 @@ const upload = e => {
     else $statxt.text(`file: ${file.name} size: ${file.size}mb`) // if file say there is file
 
     const fd = new FormData()
+    fd.append("name",$("input[name='name']").val())
+    fd.append("level",$("input[name='level']").val())
+    fd.append("category",$("input[name='category']").val())
     fd.append("file",file)
 
     $.ajax({
@@ -23,8 +26,11 @@ const upload = e => {
         processData:false,
         contentType:false,
         success: data => {
-            alert("!!!")
-            console.log(data)
+            $bar.css("width","100%")
+            $statxt.text(`media created! path:${data}`)
+            setTimeout(() => { //timeout so user has time to read
+                $stat.slideUp()
+            },3000) 
         },
         error: err => {
             console.log(err)
