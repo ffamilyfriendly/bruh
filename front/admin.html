@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>admin - bruh</title>
+    <!-- framework -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/admin.css">
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/admin.js"></script>
+</head>
+<body>
+    <ul id="menu" class="navbar-side">
+        <li>
+            <a trigger="user" href="#">users</a>
+            <ul id="user" class="submenu">
+                <li><a href="#user_manage">manage</a></li>
+            </ul>
+        </li>
+        <li>
+            <a trigger="content" href="#">content</a>
+            <ul id="content" class="submenu">
+                <li><a href="#categories">categories</a></li>
+                <li><a href="#movies">movies</a></li>
+            </ul>
+        </li>
+    </ul>
+    <div class="page" id="user_manage">
+        <h1 class="title">manage users</h1>
+        <button onclick="load_users()" class="btn-green btn-curved">load users</button>
+        <hr>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>email</th>
+                    <th>level</th>
+                </tr>
+            </thead>
+            <tbody id="user_body">
+
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

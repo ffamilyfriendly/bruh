@@ -1,0 +1,59 @@
+.navbar-side {
+  position: absolute;
+  list-style-type: none;
+  margin: 0;
+  padding: 10px;
+  background-color: var(--secondary);
+  color: var(--text_secondary);
+  height: 100vh;
+  width: 15%;
+  display: inline-block;
+}
+
+.navbar-side li a {
+    display: block;
+    color: var(--text_secondary);
+    text-decoration: none;
+}
+
+.submenu {
+    list-style: none;
+    display: none;
+    cursor: pointer;
+}
+
+.submenu li a::before {
+    content: "•";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    color: #1ED760; /* Change the color */
+    font-weight: bold; /* If you want it to be bold */
+    display: inline-block; /* Needed to add space between the bullet and the text */
+    width: 1em; /* Also needed for space (tweak if needed) */
+    margin-left: -1em; /* Also needed for space (tweak if needed) */
+}
+
+.page {
+    display: none;
+    float: right;
+    width: 80%;
+}
+
+.page:target {
+    display: inline-block;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: var(--floating);
+}
+
+thead tr th {
+    padding: 7px;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgb(168, 167, 167);
+}
+

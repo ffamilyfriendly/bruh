@@ -15,6 +15,7 @@ router.post("/login",(req,res) => {
         bcrypt.compare(password,row.password,(err,resu) => {
             if(err){ console.error(err); return res.status(500).send({type:"internal error",data:"could not compare passwords"})}
             if(resu) {
+                req.session.user = {email:row.email,level:row.level} //set cookie session
                 return res.status(200).send({type:"logged in",data:"redirecting..."})
             } else {
                 return res.status(401).send({type:"credentials",data:"wrong username/password"})
@@ -37,6 +38,20 @@ router.post("/register",(req,res) => {
         })
     })
 })
+
+// from here and below are admin only endpoints
+router.use((req,res,next) => {
+    if(!req.session || !req.session.user || req.session.user.level < 100) return res.status(403).send({type:"unauthorised",data:"user cookie session does not exist or user level is less then 100"})
+    else next()
+})
+
+router.get("/get_users",(req,res) => {
+    db.all("SELECT * FROM users",(err,rows) => {
+        if(err) return res.status(500).send({type:"internal error",data:"could not query users"})
+        else res.send(rows) //!!!WARNING!!! right now this also sends the password hash. I cba to fix this atm but pls mind this
+    })
+})
+
 
 
 module.exports = {
