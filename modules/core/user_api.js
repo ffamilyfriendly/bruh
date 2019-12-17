@@ -52,6 +52,15 @@ router.get("/get_users",(req,res) => {
     })
 })
 
+router.post("/edit_user",(req,res) => {
+    const {email, level} = req.body
+    if(!email || !level) return res.status(400).send({type:"bad request",data:"insufficient amount of parameters passed"})
+    db.all(`UPDATE users SET level = ${level} WHERE email = "${email}"`,(err) => {
+        if(err) return res.status(500).send({type:"internal error",data:"could not update users"})
+        else res.status(200).send({type:"OK",data:"updated user"})
+    })
+})
+
 
 
 module.exports = {

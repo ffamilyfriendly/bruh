@@ -10,6 +10,8 @@ app.use(cs({
     keys:["bruh"],
     maxAge: 24 * 60 * 60 * 1000
 }))
+const fileUpload = require("express-fileupload")
+app.use(fileUpload())
 app.use("/static",express.static("front"))
 
 getFileList("./modules").forEach(m => {

@@ -1,3 +1,29 @@
+.warning {
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    padding: 10px;
+    background-color: var(--floating);
+    display: none;
+}
+
+.floating_header {
+    top:0;
+    left:0;
+    position: fixed;
+    width: 100%;
+    background-color: var(--floating);
+    display: none;
+}
+
+#bar {
+    width: 1%;
+    height: 5px;
+    display: block;
+    background-color: blue;
+}
+
 .navbar-side {
   position: absolute;
   list-style-type: none;
