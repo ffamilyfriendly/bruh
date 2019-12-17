@@ -84,3 +84,6 @@ tbody tr:nth-child(even) {
     background-color: rgb(168, 167, 167);
 }
 
+#file_upload input {
+    display: block;
+}

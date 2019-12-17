@@ -1,9 +1,21 @@
+/*
+TODO: document this
+haha like that will ever happen
+*/
+
 const router = require("express").Router()
 const fs = require("fs")
 //maybe using a different database file is good for content delivery but idc
 const db = require("./database").db
 
 const allowed = (req,row) => row.level <= req.session.user.level
+
+router.get("/get_movies",(req,res) => {
+    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level}`,(err,rows) => {
+        if(err) return res.status(500).send({type:"internal error",data:err})
+        else res.send(rows)
+    })
+})
 
 router.get("/movie/:id",(req,res) => {
     const id = req.params.id
@@ -31,6 +43,23 @@ router.get("/info/:id",(req,res) => {
 router.use((req,res,next) => {
     if(!req.session.user || req.session.user.level < 100) return res.status(403).send({type:"unauthorised",data:"user cookie session does not exist or user level is less then 100"})
     else next()
+})
+
+router.post("/edit_movie",(req,res) => {
+    const {id,changes} = req.body
+    if(!id || !changes) return res.status(400).send({type:"bad request",data:"missing params"})
+    let sql = `UPDATE movies SET `
+    const keys = Object.keys(changes)
+    for(let i = 0; i < keys.length; i++) {
+        let change = keys[i]
+        changes[change] = change === "level" ? changes[change] : `"${changes[change]}"`
+        sql += `${change} = ${changes[change]}${keys[i+1] ? "," : ""} ` //bodge... such a lovely word
+    }
+    sql += ` WHERE id = "${id}"`
+    db.all(sql,(err) => {
+        if(err) return res.status(500).send({type:"internal error",data:err})
+        else res.status(200).send({type:"OK",data:"updated movie table"})
+    })
 })
 
 router.post("/upload",(req,res) => {

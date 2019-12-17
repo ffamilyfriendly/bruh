@@ -48,7 +48,8 @@ $(document).ready(() => {
 })
 
 var unsaved = {
-    user:{}
+    user:{},
+    movie:{}
 }
 
 function user_changed(e) {
@@ -57,6 +58,14 @@ function user_changed(e) {
     console.log($value)
     const $row = $value.parent().parent()
     unsaved.user[$row.children(":first").text()] = $value.val()
+}
+
+function movie_changed(type,e) {
+    $("#unsaved_warning").slideDown()
+    const $ele = $(e)
+    const $row = $ele.parent().parent()
+    if(!unsaved.movie[$row.children(":first").text()]) unsaved.movie[$row.children(":first").text()] = {}
+    unsaved.movie[$row.children(":first").text()][type] = $ele.val()
 }
 
 function save() {
@@ -74,6 +83,24 @@ function save() {
                 }
             })
         }
+        unsaved.user = {}
+    }
+    if(Object.keys(unsaved.movie).length !== 0) {
+        for(let movie in unsaved.movie) {
+            const _movie = unsaved.movie[movie]
+            $.ajax({
+                type:"POST",
+                url:"api/edit_movie",
+                data:{id:movie,changes:_movie},
+                success: data => {
+                    console.log(data)
+                },
+                error: err => {
+                    console.error(err)
+                }
+            })
+        }
+        unsaved.movie = {}
     }
     $("#unsaved_warning").slideUp()
 }
@@ -84,6 +111,17 @@ function load_users() {
         for(let i = 0; i < data.length; i++) {
             const row = data[i]
             $table.append(`<tr><th>${row.email}</th><th><input type="number" onchange="user_changed(this)" value="${row.level}"></th></tr>`)
+        }
+    })
+}
+
+function load_movies() {
+    const $table = $("#movie_body")
+    $.get("/api/get_movies",(data) => {
+        for(let movie in data) {
+            movie = data[movie]
+            console.log(movie)
+            $table.append(`<tr><th>${movie.id}</th><th>${movie.path}</th><th><input type="text" onchange="movie_changed('category',this)" value="${movie.category}"></th><th><input onchange="movie_changed('level',this)" type="number" value="${movie.level}"></th></tr>`)
         }
     })
 }
