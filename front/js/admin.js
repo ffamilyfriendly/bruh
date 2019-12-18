@@ -2,11 +2,11 @@ const upload = e => {
     e.preventDefault()
     const $stat = $("#fileStat")
     const $statxt = $stat.children(":first")
-    const $bar = $("#bar")
+    const $bar = $("#bar") //Imma be honest with you cheif... this bar is useless but it gives people hope
 
     $stat.slideDown() //slide down fole uplaod status thing
     $statxt.text("starting uploading process...") 
-
+    $bar.css("width","10%")
     const $file = $("input[name='file']") //get file input
     const file = $file.prop("files")[0] //get file
 
@@ -18,7 +18,7 @@ const upload = e => {
     fd.append("level",$("input[name='level']").val())
     fd.append("category",$("input[name='category']").val())
     fd.append("file",file)
-
+    $bar.css("width","30%")
     $.ajax({
         type:"POST",
         url:"/api/upload",
@@ -36,7 +36,46 @@ const upload = e => {
             console.log(err)
         }
     })
-    
+}
+
+const upload_category = e => {
+    e.preventDefault()
+
+    const $stat = $("#fileStat")
+    const $statxt = $stat.children(":first")
+    const $bar = $("#bar") //Imma be honest with you cheif... this bar is useless but it gives people hope
+
+    $stat.slideDown() //slide down fole uplaod status thing
+    $statxt.text("starting uploading process...") 
+    $bar.css("width","10%")
+
+    const $file = $("input[name='category_image']") //get file input
+    const $name = $("input[name='category_name']")
+    const file = $file.prop("files")[0]
+
+    if(!$name.val()) return $stat.slideUp()
+
+    const fd = new FormData()
+    fd.append("name",$name.val())
+    file ? fd.append("image",file) : null
+
+    $.ajax({
+        type:"POST",
+        url:"/api/new_category",
+        data:fd,
+        processData:false,
+        contentType:false,
+        success: data => {
+            $bar.css("width","100%")
+            $statxt.text(`media created! path:${data}`)
+            setTimeout(() => { //timeout so user has time to read
+                $stat.slideUp()
+            },3000) 
+        },
+        error: err => {
+            console.log(err)
+        }
+    })
 }
 
 $(document).ready(() => {
@@ -45,6 +84,7 @@ $(document).ready(() => {
         $(`#${$id}`).toggle()
     })
     $("#file_upload").submit(upload)
+    $("#category_upload").submit(upload_category)
 })
 
 var unsaved = {
@@ -122,6 +162,23 @@ function load_movies() {
             movie = data[movie]
             console.log(movie)
             $table.append(`<tr><th>${movie.id}</th><th>${movie.path}</th><th><input type="text" onchange="movie_changed('category',this)" value="${movie.category}"></th><th><input onchange="movie_changed('level',this)" type="number" value="${movie.level}"></th></tr>`)
+        }
+    })
+}
+
+function delete_movie() {
+    const id = prompt("movie id")
+    if(!id) return
+    $.ajax({
+        type:"POST",
+        url:"/api/remove_movie",
+        data:{id},
+        success: data => {
+            location.reload()
+        },
+        error: err => {
+            alert("could not delete movie (check logs)")
+            console.log(err)
         }
     })
 }

@@ -62,6 +62,23 @@ router.post("/edit_movie",(req,res) => {
     })
 })
 
+router.post("/remove_movie",(req,res) => {
+    const id = req.body.id
+    if(!id) return res.status(400).send({type:"bad request",data:"no id passed"})
+    db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
+        if(err) return res.status(500).send({type:"internal error",data:"could not query database"})
+        row = row[0]
+        if(!row) return res.status(404).send({type:"not found",data:`row with id "${id}" not found`})
+        else {
+            db.all(`DELETE FROM movies where id = "${id}"`)
+            fs.unlink(row.path,(err) => {
+                if(err) return res.status(500).send({type:"internal error",data:err})
+                else res.status(200).send({type:"OK",data:"successfully deleted row and file"})
+            })
+        } 
+    })
+})
+
 router.post("/upload",(req,res) => {
     const file = req.files.file
     const {name,level, category} = req.body
@@ -74,6 +91,22 @@ router.post("/upload",(req,res) => {
         if(err) return res.status(500).send({type:"internal error",data:err});
         else res.status(201).send({type:"created",data:media_path})
     })
+})
+
+router.post("/new_category",(req,res) => {
+    const name = req.body.name
+    const image = req.files ? req.files.image : null
+    let media_path
+    //image path is in static directory. Anyone can see there images but I dont see the trouble tbh
+    if(image) {
+        media_path = `./front/assets/${name}.png`
+        fs.writeFileSync(media_path,image.data)
+    } else media_path = "./front/assets/defualt.png"
+    db.run(`INSERT INTO categories VALUES ("${name}","${media_path}")`,(err) => {
+        if(err) return res.status(500).send({type:"internal error",data:err});
+        else res.status(201).send({type:"created",data:media_path})
+    })
+
 })
 
 
