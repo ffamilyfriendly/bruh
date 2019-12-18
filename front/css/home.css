@@ -1,0 +1,47 @@
+.category img {
+    width: 20%;
+    height: 100px;
+    margin: 10px;
+    border: 1px solid var(--floating);
+    background-color: var(--floating);
+}
+
+#overlay {
+    z-index: 2;
+    top:0;
+    left:0;
+    position: fixed;
+    background-color: var(--secondary);
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    display: none;
+}
+
+#movie_list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#movie_list li {
+    padding: 10px;
+    border-top: 1px solid grey;
+}
+
+#movie_list li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/*
+#movie_list > li:nth-of-type(odd) {
+    background-color: #e9e9f9;
+} */
+
+/* MOBILE OPTIMISING */
+@media only screen and (max-width: 734px) {
+    .category img {
+        width: 40%;
+    }
+}

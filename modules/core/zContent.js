@@ -11,7 +11,15 @@ const db = require("./database").db
 const allowed = (req,row) => row.level <= req.session.user.level
 
 router.get("/get_movies",(req,res) => {
-    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level}`,(err,rows) => {
+    const category = req.query.category
+    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${category}"`:""}`,(err,rows) => {
+        if(err) return res.status(500).send({type:"internal error",data:err})
+        else res.send(rows)
+    })
+})
+
+router.get("/get_categories",(req,res) => {
+    db.all("SELECT * FROM categories",(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.send(rows)
     })
@@ -106,7 +114,6 @@ router.post("/new_category",(req,res) => {
         if(err) return res.status(500).send({type:"internal error",data:err});
         else res.status(201).send({type:"created",data:media_path})
     })
-
 })
 
 
