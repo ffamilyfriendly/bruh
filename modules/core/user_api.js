@@ -5,9 +5,11 @@ const db = require("./database").db
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+//login
 router.post("/login",(req,res) => {
-    const {email, password} = req.body
+    const {email, password} = req.body //extract emai and password from body
     if(!email || !password) return res.status(400).send({type:"bad request",data:"insufficient amount of parameters passed"})
+
     db.all(`SELECT * FROM users WHERE email="${email}"`,(err,row) => {
         if(!row[0]) return res.status(401).send({type:"credentials",data:"wrong username/password"})
         row = row[0]
@@ -24,6 +26,7 @@ router.post("/login",(req,res) => {
     })
 })
 
+//create new account
 router.post("/register",(req,res) => {
     const {email, password} = req.body
     if(!email || !password) return res.status(400).send({type:"bad request",data:"insufficient amount of parameters passed"})
@@ -39,20 +42,20 @@ router.post("/register",(req,res) => {
     })
 })
 
-// from here and below are admin only endpoints
-router.use((req,res,next) => {
+// from here and below are admin only endpoints (this will include zContent.js since it is loaded after this module)
+router.use("/admin",(req,res,next) => {
     if(!req.session || !req.session.user || req.session.user.level < 100) return res.status(403).send({type:"unauthorised",data:"user cookie session does not exist or user level is less then 100"})
     else next()
 })
 
-router.get("/get_users",(req,res) => {
+router.get("/admin/get_users",(req,res) => {
     db.all("SELECT * FROM users",(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:"could not query users"})
-        else res.send(rows) //!!!WARNING!!! right now this also sends the password hash. I cba to fix this atm but pls mind this
+        else res.send(rows) //!!!WARNING!!! right now this also sends the password hash. 
     })
 })
 
-router.post("/edit_user",(req,res) => {
+router.post("/admin/edit_user",(req,res) => {
     const {email, level} = req.body
     if(!email || !level) return res.status(400).send({type:"bad request",data:"insufficient amount of parameters passed"})
     db.all(`UPDATE users SET level = ${level} WHERE email = "${email}"`,(err) => {

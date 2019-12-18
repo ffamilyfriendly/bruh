@@ -21,7 +21,7 @@ const upload = e => {
     $bar.css("width","30%")
     $.ajax({
         type:"POST",
-        url:"/api/upload",
+        url:"/api/admin/upload",
         data:fd,
         processData:false,
         contentType:false,
@@ -61,7 +61,7 @@ const upload_category = e => {
 
     $.ajax({
         type:"POST",
-        url:"/api/new_category",
+        url:"/api/admin/new_category",
         data:fd,
         processData:false,
         contentType:false,
@@ -113,7 +113,7 @@ function save() {
         for(let user in unsaved.user) {
             $.ajax({
                 type:"POST",
-                url:"api/edit_user",
+                url:"api/admin/edit_user",
                 data:{email:user,level:unsaved.user[user]},
                 success: data => {
                     console.log(data)
@@ -130,7 +130,7 @@ function save() {
             const _movie = unsaved.movie[movie]
             $.ajax({
                 type:"POST",
-                url:"api/edit_movie",
+                url:"api/admin/edit_movie",
                 data:{id:movie,changes:_movie},
                 success: data => {
                     console.log(data)
@@ -147,7 +147,7 @@ function save() {
 
 function load_users() {
     const $table = $("#user_body")
-    $.get("/api/get_users",(data) => {
+    $.get("/api/admin/get_users",(data) => {
         for(let i = 0; i < data.length; i++) {
             const row = data[i]
             $table.append(`<tr><th>${row.email}</th><th><input type="number" onchange="user_changed(this)" value="${row.level}"></th></tr>`)
@@ -171,7 +171,7 @@ function delete_movie() {
     if(!id) return
     $.ajax({
         type:"POST",
-        url:"/api/remove_movie",
+        url:"/api/admin/remove_movie",
         data:{id},
         success: data => {
             location.reload()

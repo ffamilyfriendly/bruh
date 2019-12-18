@@ -1,3 +1,18 @@
+function last_played() {
+    const last_played = window.setting.get("last_watched")
+    const last_played_time = window.setting.get("last_watched_time")
+    if(last_played) {
+        $("#last").slideDown()
+        $("#go_button").attr("href",`/watch?v=${last_played}&t=${last_played_time}`)
+    }
+}
+
+function dismiss_last() {
+    window.setting.remove("last_watched")
+    window.setting.remove("last_watched_time")
+    $("#last").slideUp()
+}
+
 $(document).ready(() => {
     const $loader = $("#loader")
     $.get("/api/get_categories",(data) => {
@@ -6,6 +21,7 @@ $(document).ready(() => {
         }
         $loader.fadeOut()
     })
+    last_played()
 })
 
 function show_listing(name) {

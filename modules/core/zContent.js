@@ -1,41 +1,40 @@
-/*
-TODO: document this
-haha like that will ever happen
-*/
-
 const router = require("express").Router()
 const fs = require("fs")
-//maybe using a different database file is good for content delivery but idc
 const db = require("./database").db
 
-const allowed = (req,row) => row.level <= req.session.user.level
+const allowed = (req,row) => row.level <= req.session.user.level //function to check if user can view content
 
+//get movies
 router.get("/get_movies",(req,res) => {
-    const category = req.query.category
+    const category = req.query.category //category query is optional. if one is passed only movies from that category will be returned
     db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${category}"`:""}`,(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.send(rows)
     })
 })
 
+//get all categories. Categories cant be private but their content will be. Sorry but i'm lazy
 router.get("/get_categories",(req,res) => {
-    db.all("SELECT * FROM categories",(err,rows) => {
+    db.all("SELECT * FROM categories",(err,rows) => { 
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.send(rows)
     })
 })
 
+//send movie
 router.get("/movie/:id",(req,res) => {
-    const id = req.params.id
+    const id = req.params.id //id of movie
+    if(!id) return res.status(400).send({type:"bad request",data:"missing params"}) //if no id return 
     db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
-        row = row[0]
+        row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
         if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
         if(!allowed(req,row)) return res.status(403).send({type:"unauthorized",data:"you are not allowed to view this content"})
         res.sendFile(require("path").join(__dirname,"../../",row.path))
     })
 })
 
+//get info about movie
 router.get("/info/:id",(req,res) => {
     const id = req.params.id
     db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
@@ -47,15 +46,14 @@ router.get("/info/:id",(req,res) => {
     })
 })
 
-// from here and below are admin only endpoints
-router.use((req,res,next) => {
-    if(!req.session.user || req.session.user.level < 100) return res.status(403).send({type:"unauthorised",data:"user cookie session does not exist or user level is less then 100"})
-    else next()
-})
+// from here are admin endpoints
 
-router.post("/edit_movie",(req,res) => {
+//edit a movie
+router.post("/admin/edit_movie",(req,res) => {
     const {id,changes} = req.body
     if(!id || !changes) return res.status(400).send({type:"bad request",data:"missing params"})
+    
+    //construct SQL query... this code is very bodged but itworks™️
     let sql = `UPDATE movies SET `
     const keys = Object.keys(changes)
     for(let i = 0; i < keys.length; i++) {
@@ -64,21 +62,25 @@ router.post("/edit_movie",(req,res) => {
         sql += `${change} = ${changes[change]}${keys[i+1] ? "," : ""} ` //bodge... such a lovely word
     }
     sql += ` WHERE id = "${id}"`
+
     db.all(sql,(err) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.status(200).send({type:"OK",data:"updated movie table"})
     })
 })
 
-router.post("/remove_movie",(req,res) => {
+//remove a movie
+router.post("/admin/remove_movie",(req,res) => {
     const id = req.body.id
     if(!id) return res.status(400).send({type:"bad request",data:"no id passed"})
+
     db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:"could not query database"})
         row = row[0]
         if(!row) return res.status(404).send({type:"not found",data:`row with id "${id}" not found`})
         else {
             db.all(`DELETE FROM movies where id = "${id}"`)
+            //unlink deletes a file. I cant understand why the method isnt called remove but whatever
             fs.unlink(row.path,(err) => {
                 if(err) return res.status(500).send({type:"internal error",data:err})
                 else res.status(200).send({type:"OK",data:"successfully deleted row and file"})
@@ -87,25 +89,32 @@ router.post("/remove_movie",(req,res) => {
     })
 })
 
-router.post("/upload",(req,res) => {
-    const file = req.files.file
+//upload a movie
+router.post("/admin/upload",(req,res) => {
+    const file = req.files.file //file
     const {name,level, category} = req.body
     const id = Buffer.from(Math.floor(Math.random() * 2000).toString()).toString("base64") //generate id
-    console.log(`Incomming file:\nname:${file.name}\nsize:${file.size}`)
+
     const media_path = `./data/media/video/${id}.mp4` //media path
     fs.writeFileSync(media_path,file.data) //write data
-    db.run(`INSERT INTO movies VALUES ("${id}","${name}","${category}","${media_path}",${level})`,(err) => {
+
+    const meta = {
+        uploaded: +new Date() //unix epoch
+    }
+
+    db.run(`INSERT INTO movies VALUES ("${id}","${name}","${category}","${media_path}",${level},'${JSON.stringify(meta)}')`,(err) => {
         console.log(err)
         if(err) return res.status(500).send({type:"internal error",data:err});
         else res.status(201).send({type:"created",data:media_path})
     })
 })
 
-router.post("/new_category",(req,res) => {
+//create a category
+router.post("/admin/new_category",(req,res) => {
     const name = req.body.name
-    const image = req.files ? req.files.image : null
-    let media_path
-    //image path is in static directory. Anyone can see there images but I dont see the trouble tbh
+    const image = req.files ? req.files.image : null //image
+    let media_path //initialize media path
+
     if(image) {
         media_path = `./front/assets/${name}.png`
         fs.writeFileSync(media_path,image.data)
@@ -115,6 +124,10 @@ router.post("/new_category",(req,res) => {
         else res.status(201).send({type:"created",data:media_path})
     })
 })
+
+/*
+TODO: add a way to manage categories as right now you can only create them
+*/
 
 
 module.exports = {

@@ -109,6 +109,12 @@ button {
     cursor: pointer;
 }
 
+.btn-link {
+    text-decoration: none;
+    color: inherit;
+    padding: 5px;
+}
+
 .btn-curved {
     border-radius: 13px;
 }

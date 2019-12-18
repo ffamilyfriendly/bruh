@@ -5,7 +5,7 @@ const run = () => {
         console.log("preparing database...")
         db.run("CREATE TABLE IF NOT EXISTS users (email TEXT PRIMARY KEY,password TEXT,level INTEGER)"); //user. level starts at 0
         db.run("CREATE TABLE IF NOT EXISTS categories (name TEXT PRIMARY KEY,image TEXT)")  //category
-        db.run("CREATE TABLE IF NOT EXISTS movies (id TEXT PRIMARY KEY,name TEXT,category TEXT,path TEXT,level INTEGER)"); //movies. path is stored to mp4 file instead of blob... I learned this the hard way
+        db.run("CREATE TABLE IF NOT EXISTS movies (id TEXT PRIMARY KEY,name TEXT,category TEXT,path TEXT,level INTEGER,meta TEXT)"); //movies. path is stored to mp4 file instead of blob... I learned this the hard way
     })
 }
 

@@ -6,6 +6,18 @@
     background-color: var(--floating);
 }
 
+#last {
+    padding: 15px;
+    display: none;
+}
+
+#last a {
+    text-decoration: none;
+    color: inherit;
+    border-color: white;
+    padding: 3px;
+}
+
 #overlay {
     z-index: 2;
     top:0;

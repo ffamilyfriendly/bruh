@@ -9,6 +9,10 @@ router.get("/home",(req,res) => {
     res.sendFile(path.join(__dirname,"../../front","home.html"))
 })
 
+router.get("/terms",(req,res) => {
+    res.sendFile(path.join(__dirname,"../../front","tos.html"))
+})
+
 router.get("/login",(req,res) => {
     res.sendFile(path.join(__dirname,"../../front","login.html"))
 })
