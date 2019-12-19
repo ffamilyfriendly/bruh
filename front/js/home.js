@@ -7,17 +7,44 @@ function last_played() {
     }
 }
 
+function request_movie() {
+    const request = $("#request").val()
+    if(!request) return
+    $.ajax({
+        type:"post",
+        url:"/api/new_request",
+        data:{request},
+        success: data => {
+            location.reload() //reload to laod new tickets
+        },
+        error: err => {
+            alert("could not request movie (check logs)")
+            console.error(err)
+        }
+    })
+}
+
 function dismiss_last() {
     window.setting.remove("last_watched")
     window.setting.remove("last_watched_time")
     $("#last").slideUp()
 }
 
+function load_tickets() {
+    const $list = $("#tickets")
+    $.get("/api/get_requests",(data) => {
+        for(let request in data) {
+            $list.append(`<li><b>Request: </b>${data[request].request} <b>answer: </b>${data[request].answer}</li>`)
+        }
+    })
+}
+
 $(document).ready(() => {
     const $loader = $("#loader")
+    load_tickets()
     $.get("/api/get_categories",(data) => {
         for(let row in data) {
-            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].name}')" href="#${data[row].name}"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].name}.png"></a>`)
+            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].name}')" href="#"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].name}.png"></a>`)
         }
         $loader.fadeOut()
     })

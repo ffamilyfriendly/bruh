@@ -5,10 +5,6 @@ router.get("/",(req,res) => {
     res.sendFile(path.join(__dirname,"../../front","index.html"))
 })
 
-router.get("/home",(req,res) => {
-    res.sendFile(path.join(__dirname,"../../front","home.html"))
-})
-
 router.get("/terms",(req,res) => {
     res.sendFile(path.join(__dirname,"../../front","tos.html"))
 })
@@ -19,6 +15,17 @@ router.get("/login",(req,res) => {
 
 router.get("/register",(req,res) => {
     res.sendFile(path.join(__dirname,"../../front","register.html"))
+})
+
+//middleware to make sure user is logged in. 
+router.use((req,res,next) => {
+    const exclude = ["/api/login","/api/register"] //exclude endpoints used to log in
+    if(!req.session.user && !exclude.includes(req.url)) return res.redirect(`/login?redirect=${encodeURI(req.url)}`) //if there is no user obj redirect to login page 
+    else next() //if user object continue
+})
+
+router.get("/home",(req,res) => {
+    res.sendFile(path.join(__dirname,"../../front","home.html"))
 })
 
 router.get("/watch",(req,res) => {

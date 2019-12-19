@@ -1,5 +1,7 @@
 const router = require("express").Router()
 const fs = require("fs")
+const conf = require("../../config")
+const h = require("../../lib/helpers")
 const db = require("./database").db
 
 const allowed = (req,row) => row.level <= req.session.user.level //function to check if user can view content
@@ -13,9 +15,9 @@ router.get("/get_movies",(req,res) => {
     })
 })
 
-//get all categories. Categories cant be private but their content will be. Sorry but i'm lazy
+//get all categories. 
 router.get("/get_categories",(req,res) => {
-    db.all("SELECT * FROM categories",(err,rows) => { 
+    db.all(`SELECT * FROM categories WHERE level < ${req.session.user.level}`,(err,rows) => { 
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.send(rows)
     })
@@ -24,7 +26,7 @@ router.get("/get_categories",(req,res) => {
 //send movie
 router.get("/movie/:id",(req,res) => {
     const id = req.params.id //id of movie
-    if(!id) return res.status(400).send({type:"bad request",data:"missing params"}) //if no id return 
+    if(!h.important_params([id],res)) return
     db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
@@ -51,7 +53,7 @@ router.get("/info/:id",(req,res) => {
 //edit a movie
 router.post("/admin/edit_movie",(req,res) => {
     const {id,changes} = req.body
-    if(!id || !changes) return res.status(400).send({type:"bad request",data:"missing params"})
+    if(!h.important_params([id,changes],res)) return
     
     //construct SQL query... this code is very bodged but itworks™️
     let sql = `UPDATE movies SET `
@@ -72,7 +74,7 @@ router.post("/admin/edit_movie",(req,res) => {
 //remove a movie
 router.post("/admin/remove_movie",(req,res) => {
     const id = req.body.id
-    if(!id) return res.status(400).send({type:"bad request",data:"no id passed"})
+    if(!h.important_params([id],res)) return
 
     db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:"could not query database"})
@@ -89,29 +91,32 @@ router.post("/admin/remove_movie",(req,res) => {
     })
 })
 
+router.get("/admin/get_content",(req,res) => {
+    const ok = require("../../lib/loader")(conf.media.path)
+    res.send(ok)
+})
+
 //upload a movie
 router.post("/admin/upload",(req,res) => {
-    const file = req.files.file //file
-    const {name,level, category} = req.body
-    const id = Buffer.from(Math.floor(Math.random() * 2000).toString()).toString("base64") //generate id
-
-    const media_path = `./data/media/video/${id}.mp4` //media path
-    fs.writeFileSync(media_path,file.data) //write data
+    const {name,level,path,category} = req.body
+    if(!h.important_params([name,level,path,category],res)) return
+    const id = h.generate_id(2000) //generate id
 
     const meta = {
         uploaded: +new Date() //unix epoch
     }
 
-    db.run(`INSERT INTO movies VALUES ("${id}","${name}","${category}","${media_path}",${level},'${JSON.stringify(meta)}')`,(err) => {
+    db.run(`INSERT INTO movies VALUES ("${id}","${name}","${category}","${path}",${level},'${JSON.stringify(meta)}')`,(err) => {
         console.log(err)
         if(err) return res.status(500).send({type:"internal error",data:err});
-        else res.status(201).send({type:"created",data:media_path})
+        else res.status(201).send({type:"created",data:path})
     })
 })
 
 //create a category
 router.post("/admin/new_category",(req,res) => {
-    const name = req.body.name
+    const {name,level} = req.body
+    if(!h.important_params([name,level],res)) return
     const image = req.files ? req.files.image : null //image
     let media_path //initialize media path
 
@@ -119,7 +124,7 @@ router.post("/admin/new_category",(req,res) => {
         media_path = `./front/assets/${name}.png`
         fs.writeFileSync(media_path,image.data)
     } else media_path = "./front/assets/defualt.png"
-    db.run(`INSERT INTO categories VALUES ("${name}","${media_path}")`,(err) => {
+    db.run(`INSERT INTO categories VALUES ("${name}","${media_path}",${level})`,(err) => {
         if(err) return res.status(500).send({type:"internal error",data:err});
         else res.status(201).send({type:"created",data:media_path})
     })

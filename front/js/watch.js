@@ -1,3 +1,7 @@
+const _url = new URL(window.location.href)
+const url = new URLSearchParams(_url.search)
+const title = url.get("v")
+
 function timeChanged() {
     const p = document.getElementById("player")
     window.setting.set("last_watched_time",p.currentTime)
@@ -8,16 +12,19 @@ function toDate(time) {
     return `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} at ${d.getHours()}:${d.getMinutes()}` //this is the restoftheworld format. If you feel like using "freedom time" just change it a bit
 }
 
+//This should work for ios now
+function skipto() {
+    if(url.has("t")) {
+        document.getElementById("player").currentTime = url.get("t")
+    }
+}
+
 /* 
 this code is absolute trash. 
 do not look at it
 */
 
 $(document).ready(() => {
-const _url = new URL(window.location.href)
-const url = new URLSearchParams(_url.search)
-const title = url.get("v")
-const skipto = url.get("t")
 if(!title) return window.location = "/home"
 window.setting.set("last_watched",title)
 const $player = $("#player")
@@ -32,12 +39,11 @@ $.get(`/api/info/${title}`,(data) => {
     $player.children(":first").attr("src",`/api/movie/${title}`) //set 
     const p = document.getElementById("player")
     p.load() //load
-    if(skipto) p.currentTime = skipto //if time is passed skip to that location
+    p.onplay = skipto
     $("#loader").fadeOut()
     setInterval(timeChanged,1000)
-
-    
 }).fail(err => {
+    if(url.has("dev")) return
     if(err) return window.location = "/home"
 })
 })

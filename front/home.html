@@ -28,6 +28,19 @@
 
         </ul>
     </div>
+    <div id="requestOverlay" style="background-color: var(--floating); color:var(--text_primary); padding: 10px; display: none;" class="centerDiv">
+    <button onclick="$('#requestOverlay').hide()" class="btn-yellow">close</button> Request movie
+        <div id="request_body" style="margin: 10px;">
+            <input id="request" type="text" placeholder="movie name"> <button onclick="request_movie()">send</button>
+            <hr>
+            <ul id="tickets">
+
+            </ul>
+        </div>
+    </div>
+    <footer class="sticky">
+        <button onclick="$('#requestOverlay').show()" class="btn-green btn-curved">request movie</button>
+    </footer>
     <div id="main" class="container">
         <section id="listing"></section>
     </div>

@@ -6,9 +6,25 @@
     background-color: var(--floating);
 }
 
+
 #last {
     padding: 15px;
     display: none;
+}
+
+#request_body {
+    overflow-y: auto;
+    height: 70%;
+}
+
+#tickets {
+    list-style: none;
+    padding: 0;
+}
+
+#tickets li {
+    border-bottom: 1px dashed grey;
+    padding: 5px;
 }
 
 #last a {
@@ -45,6 +61,7 @@
     color: inherit;
     text-decoration: none;
 }
+
 
 /*
 #movie_list > li:nth-of-type(odd) {

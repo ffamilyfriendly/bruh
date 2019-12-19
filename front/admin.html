@@ -25,6 +25,7 @@
             <ul id="content" class="submenu">
                 <li><a href="#categories">categories</a></li>
                 <li><a href="#movies">movies</a></li>
+                <li><a href="#requests">requests</a></li>
             </ul>
         </li>
     </ul>
@@ -65,22 +66,29 @@
             
         <h1 class="green">upload</h1>
         <hr>
-        <form id="file_upload">
-            <input type="file" name="file" accept="video/mp4"><br>
-            <input type="text" name="name" placeholder="name"><br>
-            <input type="text" name="category" placeholder="category"><br>
-            <input type="number" name="level" placeholder="1"><br>
-            <button class="btn-green btn-curved"><svg style="fill: white;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-9.479 5.908v-6l5 3-5 3z"/></svg></button>
-        </form>
+        <div id="FORM">
+            <button value="" id="file_path" onclick="select_file()">select file</button>
+            <input type="text" id="name" placeholder="name"><br>
+            <input type="text" id="category" placeholder="category"><br>
+            <input type="number" id="level" placeholder="1"><br>
+            <button onclick="upload_movie()" class="btn-green btn-curved"><svg style="fill: white;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-9.479 5.908v-6l5 3-5 3z"/></svg></button>
+        </div>
     </div>
     <div class="page" id="categories">
         <h1 class="title">categories</h1>
         <small>right now there is no way to edit categories...</small>
         <form id="category_upload">
-            <input type="text" placeholder="name" name="category_name">
+            <input type="text" placeholder="name" name="category_name"> <input type="number" placeholder="1" name="category_level">
             <input type="file" name="category_image" accept="image/png"><br>
             <button class="btn-green btn-curved"><svg style="fill: white;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-9.479 5.908v-6l5 3-5 3z"/></svg></button>
         </form>
+    </div>
+    <div class="page" id="requests">
+        <h1 class="title">requests</h1> <button onclick="load_tickets()" class="btn-green btn-curved">load</button>
+        <hr>
+        <ul id="request_list">
+
+        </ul>
     </div>
     <div id="unsaved_warning" class="warning">
         you have unsaved settings <button style="margin-left: 10px;" onclick="save()" class="btn-border btn-curved">save</button>
@@ -88,6 +96,15 @@
     <div id="fileStat" class="floating_header">
         <span id="fileStat_text">text</span>
         <div id="bar"></div>
+    </div>
+    <div id="select_file_overlay" class="centerDiv">
+        <button class="btn-yellow" onclick="$('#select_file_overlay').hide()">close</button> <b>Select media path</b>
+        <hr>
+        <div id="select_file_body">
+            <ul id="select_file_list">
+
+            </ul>
+        </div>
     </div>
 </body>
 </html>

@@ -47,6 +47,12 @@ footer {
     padding: 10px;
 }
 
+.sticky {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+
 .navbar {
     list-style-type: none;
     margin: 0;
