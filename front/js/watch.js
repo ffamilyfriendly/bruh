@@ -3,8 +3,13 @@ const url = new URLSearchParams(_url.search)
 const title = url.get("v")
 
 function timeChanged() {
-    const p = document.getElementById("player")
-    window.setting.set("last_watched_time",p.currentTime)
+    try {
+        const p = document.getElementById("player")
+        window.setting.set("last_watched",title)
+        window.setting.set("last_watched_time",p.currentTime)
+    } catch(err) {
+        //we could do something here... but nah
+    }
 }
 
 function toDate(time) {
@@ -26,7 +31,6 @@ do not look at it
 
 $(document).ready(() => {
 if(!title) return window.location = "/home"
-window.setting.set("last_watched",title)
 const $player = $("#player")
 console.log("trying to play movie " + title)
 $.get(`/api/info/${title}`,(data) => {
@@ -34,12 +38,11 @@ $.get(`/api/info/${title}`,(data) => {
     $("#movie_title").text(data.name)
     $("#movie_category").text(data.category)
     $("#movie_uploaded").text(toDate(meta.uploaded))
-    console.log(meta)
 
     $player.children(":first").attr("src",`/api/movie/${title}`) //set 
     const p = document.getElementById("player")
     p.load() //load
-    p.onplay = skipto
+    p.oncanplay = skipto
     $("#loader").fadeOut()
     setInterval(timeChanged,1000)
 }).fail(err => {
