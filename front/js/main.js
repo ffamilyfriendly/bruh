@@ -23,3 +23,9 @@ $(document).ready(() => {
         $("body").prepend(`<div id="cookie_header" class="banner center"><span id="notice-text">this site uses cookies to store settings. By continuing to use the site you agree to the <a href="/terms">Terms of service</a></span><hr class="mobile"><button onclick="window.setting.set('cookies',true); $('#cookie_header').remove()" id="btn-dismiss" class="btn-yellow">dismiss</button></div>`)
     }
 })
+
+/* handle uncought errors */
+window.onerror = (err) => {
+    const html = `<div style="background-color:red;" onclick="$(this).remove()" class="header"><b>Error:</b> ${err}</div>`
+    $("body").append(html)
+}
