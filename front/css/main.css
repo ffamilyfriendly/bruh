@@ -99,6 +99,7 @@ footer {
 .navbar li a {
 display: block;
 text-align: center;
+color: inherit;
 padding: 14px 16px;
 text-decoration: none;
 cursor: pointer;

@@ -1,10 +1,12 @@
 const parseCookies = cs => Object.fromEntries(cs.split('; ').map(x => x.split('=')))
+const cookieEncode = val => val.replace(/\=/g,"*")
+const cookieDecode = val => val.replace(/\*/g,"=")
 
 window.setting = {
     set: (key, value) => {
         if(!window.setting.exists("cookies")) document.cookie = "cookies=false;" //if no cookie policy is set default to no cookies
         if(key !== "cookies" && parseCookies(document.cookie)["cookies"] === "false") throw new Error("cookies forbidden") //if trying to write with cookie policy false throw err
-        document.cookie = `${key}=${value};` //write
+        document.cookie = `${key}=${cookieEncode(value)};` //write
     },
     exists: key => {
         const settings = parseCookies(document.cookie)
@@ -14,7 +16,7 @@ window.setting = {
         document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
     },
     get: key => {
-        return key ? parseCookies(document.cookie)[key] : parseCookies(document.cookie)
+        return cookieDecode(key ? parseCookies(document.cookie)[key] : parseCookies(document.cookie))
     }
 }
 
