@@ -191,6 +191,7 @@ function select_file() {
     const $list = $("#select_file_list")
     $list.empty()
     $.get("/api/admin/get_content",(data) => {
+        console.log(data)
         for(let file in data) {
             /*right now only mp4 is supported.
             feel free to edit support based on availible formats https://www.w3schools.com/html/html5_video.asp
@@ -202,6 +203,8 @@ function select_file() {
             }
         }
         $overlay.show()
+    }).fail(err => {
+        window.popup("error",err)
     })
 }
 
