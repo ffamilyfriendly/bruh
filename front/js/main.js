@@ -1,6 +1,6 @@
 const parseCookies = cs => Object.fromEntries(cs.split('; ').map(x => x.split('=')))
-const cookieEncode = val => typeof val === String ? val.replace(/\=/g,"*") : undefined
-const cookieDecode = val => typeof val === String ? val.replace(/\*/g,"=") : undefined
+const cookieEncode = val => typeof val == "string" ? val.replace(/\=/g,"*") : val
+const cookieDecode = val => typeof val == "string" ? val.replace(/\*/g,"=") : val
 
 window.setting = {
     set: (key, value) => {
