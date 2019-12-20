@@ -1,10 +1,9 @@
 function last_played() {
+    if(!window.setting.exists("last_watched") || !window.setting.exists("last_watched_time")) return
     const last_played = decodeURI(window.setting.get("last_watched"))
     const last_played_time = window.setting.get("last_watched_time")
-    if(last_played) {
-        $("#last").slideDown()
-        $("#go_button").attr("href",`/watch?v=${last_played}&t=${last_played_time}`)
-    }
+    $("#last").slideDown()
+    $("#go_button").attr("href",`/watch?v=${last_played}&t=${last_played_time}`)
 }
 
 function request_movie() {
