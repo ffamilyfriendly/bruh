@@ -18,8 +18,8 @@ function request_movie() {
             location.reload() //reload to laod new tickets
         },
         error: err => {
-            alert("could not request movie (check logs)")
-            console.error(err)
+            window.popup("error","could not save request. (check logs)")
+            console.log(err)
         }
     })
 }
@@ -60,7 +60,7 @@ function show_listing(name) {
     $list.empty()
     $.get(`/api/get_movies?category=${name}`,(data) => {
         for(let row in data) {
-            $list.append(`<li><a href="/watch?v=${data[row].id}">${data[row].id}</a></li>`)
+            $list.append(`<li><a href="/watch?v=${data[row].id}">${data[row].name}</a></li>`)
         }
     })
 }

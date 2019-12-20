@@ -25,6 +25,7 @@ function upload_movie() {
             },3000) 
         },
         error: err => {
+            window.popup("error","could not save movie. (check logs)")
             console.log(err)
         }
     })
@@ -67,6 +68,7 @@ const upload_category = e => {
             },3000) 
         },
         error: err => {
+            window.popup("error","could not save category. (check logs)")
             console.log(err)
         }
     })
@@ -116,7 +118,7 @@ function populate_table(table,data,func) {
         }
         if(func) {
             //this is ugly but works, just like me but minus the works part
-            html += `<th><button onclick="${func}(this)">action</button></th>`
+            html += `<th><button onclick="${func}">delete</button></th>`
         }
         html += `</tr>`
         $tbody.append(html)
@@ -131,23 +133,40 @@ function table_edit(table,key,identifier,value) {
     unsaved[table][identifier][key] = value
 }
 
+function request_action(type,e) {
+    const confirm = prompt("are you sure? (y/n)")
+    if(!confirm || confirm.toLowerCase() !=="y") return
+    const $row = $(e).parent().parent()
+    const $identifier = $row.children(":first").children(":first").val()
+    $.ajax({
+        type:"POST",
+        url:"/api/admin/remove",
+        data:{table:type,identifier:$identifier},
+        success: data => {
+            location.reload()
+        },
+        error: err => {
+            window.popup("error",err)
+        }
+    })
+}
 
 function load_dash() {
     $.get("/api/admin/get_users",(data) => {
-        populate_table("users",data)
+        populate_table("users",data,"request_action('users',this)")
         $("#overview_user").text(data.length)
     })
     $.get("/api/get_movies",(data) => {
-        populate_table("movies",data)
+        populate_table("movies",data,"request_action('movies',this)")
         $("#overview_movies").text(data.length)
     })
     $.get("/api/get_categories",(data) => {
         console.log(data)
-        populate_table("categories",data)
+        populate_table("categories",data,"request_action('categories',this)")
         $("#overview_categories").text(data.length)
     })
     $.get("/api/get_requests",(data) => {
-        populate_table("requests",data)
+        populate_table("requests",data,"request_action('requests',this)")
         $("#overview_requests").text(data.length)
     })
 }
@@ -160,14 +179,6 @@ $(document).ready(() => {
     })
     $("#_categories").submit(upload_category)
 })
-
-function user_changed(e) {
-    $("#unsaved_warning").slideDown()
-    const $value = $(e)
-    console.log($value)
-    const $row = $value.parent().parent()
-    unsaved.user[$row.children(":first").text()] = $value.val()
-}
 
 function select_filepath(path) {
     $("#select_file_overlay").hide()
@@ -184,40 +195,14 @@ function select_file() {
             /*right now only mp4 is supported.
             feel free to edit support based on availible formats https://www.w3schools.com/html/html5_video.asp
             */
+            try {
             $list.append(`<li style="cursor: pointer;" onclick="select_filepath('${data[file]}')">${data[file]}${[".mp4",".ogg"].includes(data[file].match(/\.\w{1,5}$/gi)[0]) ? "" : " <b style='color:red;'>(format not supported)</b>"}</li>`)
+            } catch(err) {
+                console.warn(err)
+            }
         }
         $overlay.show()
     })
-}
-
-function answer_ticket(id) {
-    const answer = prompt(`answer request with id "${id}"`)
-    if(!answer) return
-   $.ajax({
-       type:"POST",
-       url:"/api/admin/answer_request",
-       data:{id,answer},
-       success: data => {
-           console.log(data)
-       },
-       error: err => {
-           console.log(err)
-       }
-   })
-}
-
-function delete_ticket(id) {
-    $.get(`/api/admin/delete_request?id=${id}`,(data) => {
-        if(data) location.reload()
-    })
-}
-
-function movie_changed(type,e) {
-    $("#unsaved_warning").slideDown()
-    const $ele = $(e)
-    const $row = $ele.parent().parent()
-    if(!unsaved.movie[$row.children(":first").text()]) unsaved.movie[$row.children(":first").text()] = {}
-    unsaved.movie[$row.children(":first").text()][type] = $ele.val()
 }
 
 function save() {
@@ -235,29 +220,12 @@ function save() {
                         console.log(data)
                     },
                     error: err => {
-                        console.error(err)
+                        window.popup("error","could not save settings. (check logs)")
+                        console.log(err)
                     }
                 })
             }
         }
     }
     $("#unsaved_warning").slideUp()
-}
-
-
-function delete_movie() {
-    const id = prompt("movie id")
-    if(!id) return
-    $.ajax({
-        type:"POST",
-        url:"/api/admin/remove_movie",
-        data:{id},
-        success: data => {
-            location.reload()
-        },
-        error: err => {
-            alert("could not delete movie (check logs)")
-            console.log(err)
-        }
-    })
 }

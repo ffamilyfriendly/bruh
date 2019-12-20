@@ -3,6 +3,7 @@
 * multiple storage locations
 * admin dash overhaul
 * categories are editable
+* better error handling
 
 # 1.0.1
 **added:**

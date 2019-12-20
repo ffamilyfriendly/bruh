@@ -69,15 +69,6 @@ router.use("/admin",(req,res,next) => {
     else next()
 })
 
-router.get("/admin/delete_request",(req,res) => {
-    const id = req.query.id
-    if(!h.important_params([id],res)) return
-    db.run(`DELETE FROM requests WHERE id = "${id}"`,(err) => {
-        if(err) {console.error(err); return res.status(500).send({type:"internal error",data:"could not delete"})}
-        else res.status(200).send({type:"OK",data:`request ticket deleted`})
-    })
-})
-
 router.get("/admin/get_users",(req,res) => {
     db.all("SELECT id, level FROM users",(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:"could not query users"})

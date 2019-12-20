@@ -67,24 +67,16 @@ router.post("/admin/save_changes",(req,res) => {
     })
 })
 
-//remove a movie
-router.post("/admin/remove_movie",(req,res) => {
-    const id = req.body.id
-    if(!h.important_params([id],res)) return
-
-    db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
-        if(err) return res.status(500).send({type:"internal error",data:"could not query database"})
-        row = row[0]
-        if(!row) return res.status(404).send({type:"not found",data:`row with id "${id}" not found`})
-        else {
-            db.all(`DELETE FROM movies where id = "${id}"`)
-            //unlink deletes a file. I cant understand why the method isnt called remove but whatever
-            fs.unlink(row.path,(err) => {
-                if(err) return res.status(500).send({type:"internal error",data:err})
-                else res.status(200).send({type:"OK",data:"successfully deleted row and file"})
-            })
-        } 
+router.post("/admin/remove",(req,res) => {
+    const {table,identifier} = req.body
+    if(!h.important_params([table,identifier],res)) return
+    const sql = `DELETE FROM ${table} WHERE id = "${identifier}"`
+    db.all(sql,(err) => {
+        console.log(err)
+        if(err) return res.status(500).send({type:"internal error",data:err})
+        else res.status(200).send({type:"OK",data:"deleted"})
     })
+
 })
 
 router.get("/admin/get_content",(req,res) => {

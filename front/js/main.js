@@ -18,6 +18,15 @@ window.setting = {
     }
 }
 
+window.popup = (type,data) => {
+    const html = `<div class="centerDiv popup popup-${type}">
+    <h1 class="center">${type}</h1>
+    <p>${data}</p>
+    <button onclick='$(this).parent().remove()'>Dismiss</button>
+    </div>`
+    $("body").prepend(html)
+}
+
 $(document).ready(() => {
     if(!window.setting.exists("cookies") || window.setting.get("cookies") == "false") {
         $("body").prepend(`<div id="cookie_header" class="banner center"><span id="notice-text">this site uses cookies to store settings. By continuing to use the site you agree to the <a href="/terms">Terms of service</a></span><hr class="mobile"><button onclick="window.setting.set('cookies',true); $('#cookie_header').remove()" id="btn-dismiss" class="btn-yellow">dismiss</button></div>`)
@@ -26,6 +35,5 @@ $(document).ready(() => {
 
 /* handle uncought errors */
 window.onerror = (err) => {
-    const html = `<div style="background-color:red;" onclick="$(this).remove()" class="header"><b>Error:</b> ${err}</div>`
-    $("body").prepend(html)
+    window.popup("error",`${err}<br><a class="btn-red" href="https://stackoverflow.com/search?q=${err}">Stack overflow</a>`)
 }

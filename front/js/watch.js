@@ -47,6 +47,6 @@ $.get(`/api/info/${title}`,(data) => {
     setInterval(timeChanged,1000)
 }).fail(err => {
     if(url.has("dev")) return
-    if(err) return window.location = "/home"
+    if(err) return window.popup("error","media you are attempting to watch does not exist or you dont have access to it.<a href='/home'> go back</a>")
 })
 })

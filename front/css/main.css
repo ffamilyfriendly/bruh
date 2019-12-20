@@ -24,6 +24,38 @@ body {
 
 /* elements */
 
+.popup {
+    background-color: var(--secondary);
+    color: var(--text_secondary);
+    z-index: 23;
+}
+
+.popup p {
+    padding: 10px;
+}
+
+.popup-error button {
+    background-color: red;
+}
+
+.popup-info button {
+    background-color: blue;
+}
+
+.popup-warn button {
+    color: black !important;
+    background-color: yellow;
+}
+
+.popup button {
+    width: 100%;
+    padding: 20px;
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    bottom: 0;
+}
+
 .centerDiv {
     width: 30%;
     height: 50%;
