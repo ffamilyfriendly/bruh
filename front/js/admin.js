@@ -204,7 +204,8 @@ function select_file() {
         }
         $overlay.show()
     }).fail(err => {
-        window.popup("error",err)
+        window.popup("error","could not get files (check logs)")
+        console.error(err)
     })
 }
 
