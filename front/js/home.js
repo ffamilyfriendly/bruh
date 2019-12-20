@@ -1,5 +1,5 @@
 function last_played() {
-    const last_played = window.setting.get("last_watched")
+    const last_played = decodeURI(window.setting.get("last_watched"))
     const last_played_time = window.setting.get("last_watched_time")
     if(last_played) {
         $("#last").slideDown()

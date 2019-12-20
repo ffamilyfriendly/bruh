@@ -5,7 +5,7 @@ const title = url.get("v")
 function timeChanged() {
     try {
         const p = document.getElementById("player")
-        window.setting.set("last_watched",title)
+        window.setting.set("last_watched",encodeURI(title))
         window.setting.set("last_watched_time",p.currentTime)
     } catch(err) {
         //we could do something here... but nah
