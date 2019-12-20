@@ -52,7 +52,7 @@ const upload_category = e => {
     fd.append("name",$name.val())
     fd.append("level",$level.val())
     file ? fd.append("image",file) : null
-
+    console.log(fd)
     $.ajax({
         type:"POST",
         url:"/api/admin/new_category",
@@ -72,18 +72,94 @@ const upload_category = e => {
     })
 }
 
+function get_input_type(type) {
+    let input_type
+    switch(type) {
+        case "string":
+        input_type = "text"
+        break;
+        default:
+        input_type = type
+        break;
+    }
+    return input_type
+}
+
+var unsaved = {
+
+}
+
+function generate_head(row) { //pretty straight-forward function
+    let html = `<thead><tr>`
+    const keys = Object.keys(row)
+    for(let i = 0; i < keys.length; i++) {
+        html += `<th>${keys[i]}</th>`
+    }
+    html += `</th></thead>`
+    return html
+}
+
+function populate_table(table,data,func) {
+    const $table = $("#"+table)
+    unsaved[table] = {}
+    if(!$table) return console.error("could not populate table (no table body)")
+    if(data.length === 0) return $table.html("<b>no data</b>") //casting undefined to object with Object.keys() in generate head function gives error. besides, no reason to continue function if no data is avalible
+    $table.append(generate_head(data[0])) //generate table head
+    const $tbody = $(`<tbody></tbody>`).appendTo($table) //generate table body
+    for(let row in data) { //for every row in the data
+        const keys = Object.keys(data[row]) 
+        let html = `<tr>` 
+        for(let i = 0; i < keys.length; i++) {
+            const key = keys[i]
+            const value = data[row][key]
+            html += `<th><input onchange="table_edit('${table}','${key}','${data[row].id}',this.value)" type="${get_input_type(typeof value)}" value="${value}"></th>` //run function get_input_type to make sure type is correct
+        }
+        if(func) {
+            //this is ugly but works, just like me but minus the works part
+            html += `<th><button onclick="${func}(this)">action</button></th>`
+        }
+        html += `</tr>`
+        $tbody.append(html)
+    }
+}
+
+//this code is increadibly flawed
+function table_edit(table,key,identifier,value) {
+    if(key === "id") return console.error("identifier may not be the same as key")
+    $("#unsaved_warning").slideDown()
+    if(!unsaved[table][identifier]) unsaved[table][identifier] = {}
+    unsaved[table][identifier][key] = value
+}
+
+
+function load_dash() {
+    $.get("/api/admin/get_users",(data) => {
+        populate_table("users",data)
+        $("#overview_user").text(data.length)
+    })
+    $.get("/api/get_movies",(data) => {
+        populate_table("movies",data)
+        $("#overview_movies").text(data.length)
+    })
+    $.get("/api/get_categories",(data) => {
+        console.log(data)
+        populate_table("categories",data)
+        $("#overview_categories").text(data.length)
+    })
+    $.get("/api/get_requests",(data) => {
+        populate_table("requests",data)
+        $("#overview_requests").text(data.length)
+    })
+}
+
 $(document).ready(() => {
+    load_dash()
     $("a[trigger]").click(function() {
         const $id = $(this).attr("trigger")
         $(`#${$id}`).toggle()
     })
-    $("#category_upload").submit(upload_category)
+    $("#_categories").submit(upload_category)
 })
-
-var unsaved = {
-    user:{},
-    movie:{}
-}
 
 function user_changed(e) {
     $("#unsaved_warning").slideDown()
@@ -102,9 +178,13 @@ function select_filepath(path) {
 function select_file() {
     const $overlay = $("#select_file_overlay")
     const $list = $("#select_file_list")
+    $list.empty()
     $.get("/api/admin/get_content",(data) => {
         for(let file in data) {
-            $list.append(`<li style="cursor: pointer;" onclick="select_filepath('${data[file]}')">${data[file]}${[".mp4",".avi",".wmv",".mov"].includes(data[file].match(/\.\w{1,5}$/gi)[0]) ? "" : " <b style='color:red;'>(not video file)</b>"}</li>`)
+            /*right now only mp4 is supported.
+            feel free to edit support based on availible formats https://www.w3schools.com/html/html5_video.asp
+            */
+            $list.append(`<li style="cursor: pointer;" onclick="select_filepath('${data[file]}')">${data[file]}${[".mp4",".ogg"].includes(data[file].match(/\.\w{1,5}$/gi)[0]) ? "" : " <b style='color:red;'>(format not supported)</b>"}</li>`)
         }
         $overlay.show()
     })
@@ -112,7 +192,7 @@ function select_file() {
 
 function answer_ticket(id) {
     const answer = prompt(`answer request with id "${id}"`)
-   // if(!answer) return
+    if(!answer) return
    $.ajax({
        type:"POST",
        url:"/api/admin/answer_request",
@@ -132,15 +212,6 @@ function delete_ticket(id) {
     })
 }
 
-function load_tickets() {
-    const $list = $("#request_list")
-    $.get("/api/get_requests",(data) => {
-        for(let request in data) {
-            $list.append(`<li><b>Request: </b>${data[request].request} <b>answer: </b><a onclick="answer_ticket('${data[request].id}')" href="#requests">${data[request].answer}</a> <a onclick="delete_ticket('${data[request].id}')" href="#requests">delete</a></li>`)
-        }
-    })
-}
-
 function movie_changed(type,e) {
     $("#unsaved_warning").slideDown()
     const $ele = $(e)
@@ -150,62 +221,29 @@ function movie_changed(type,e) {
 }
 
 function save() {
-    if(Object.keys(unsaved.user).length !== 0) {
-        for(let user in unsaved.user) {
-            $.ajax({
-                type:"POST",
-                url:"api/admin/edit_user",
-                data:{email:user,level:unsaved.user[user]},
-                success: data => {
-                    console.log(data)
-                },
-                error: err => {
-                    console.error(err)
-                }
-            })
+    const keys = Object.keys(unsaved)
+    for(let i = 0; i < keys.length; i++) {
+        const table = keys[i]
+        const _keys = Object.keys(unsaved[table])
+        if(typeof _keys != "undefined") {
+            for(let j = 0; j < _keys.length; j++) {
+                $.ajax({
+                    type:"POST",
+                    url:"/api/admin/save_changes",
+                    data: {table:table,id:_keys[j],changes:unsaved[table][_keys[j]]},
+                    success: data => {
+                        console.log(data)
+                    },
+                    error: err => {
+                        console.error(err)
+                    }
+                })
+            }
         }
-        unsaved.user = {}
-    }
-    if(Object.keys(unsaved.movie).length !== 0) {
-        for(let movie in unsaved.movie) {
-            const _movie = unsaved.movie[movie]
-            $.ajax({
-                type:"POST",
-                url:"api/admin/edit_movie",
-                data:{id:movie,changes:_movie},
-                success: data => {
-                    console.log(data)
-                },
-                error: err => {
-                    console.error(err)
-                }
-            })
-        }
-        unsaved.movie = {}
     }
     $("#unsaved_warning").slideUp()
 }
 
-function load_users() {
-    const $table = $("#user_body")
-    $.get("/api/admin/get_users",(data) => {
-        for(let i = 0; i < data.length; i++) {
-            const row = data[i]
-            $table.append(`<tr><th>${row.email}</th><th><input type="number" onchange="user_changed(this)" value="${row.level}"></th></tr>`)
-        }
-    })
-}
-
-function load_movies() {
-    const $table = $("#movie_body")
-    $.get("/api/get_movies",(data) => {
-        for(let movie in data) {
-            movie = data[movie]
-            console.log(movie)
-            $table.append(`<tr><th>${movie.id}</th><th>${movie.path}</th><th><input type="text" onchange="movie_changed('category',this)" value="${movie.category}"></th><th><input onchange="movie_changed('level',this)" type="number" value="${movie.level}"></th></tr>`)
-        }
-    })
-}
 
 function delete_movie() {
     const id = prompt("movie id")

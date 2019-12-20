@@ -44,7 +44,7 @@ $(document).ready(() => {
     load_tickets()
     $.get("/api/get_categories",(data) => {
         for(let row in data) {
-            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].name}')" href="#"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].name}.png"></a>`)
+            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].id}')" href="#"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].id}.png"></a>`)
         }
         $loader.fadeOut()
     })
@@ -60,7 +60,7 @@ function show_listing(name) {
     $list.empty()
     $.get(`/api/get_movies?category=${name}`,(data) => {
         for(let row in data) {
-            $list.append(`<li><a href="/watch?v=${data[row].id}">${data[row].name}</a></li>`)
+            $list.append(`<li><a href="/watch?v=${data[row].id}">${data[row].id}</a></li>`)
         }
     })
 }

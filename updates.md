@@ -1,3 +1,9 @@
+# 1.0.2
+**added:**
+* multiple storage locations
+* admin dash overhaul
+* categories are editable
+
 # 1.0.1
 **added:**
 * file uploading is no longer handled through the admin page.

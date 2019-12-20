@@ -13,14 +13,14 @@ router.post("/login",(req,res) => {
     const {email, password} = req.body //extract emai and password from body
     if(!h.important_params([email,password],res)) return
     if(!h.validate([email],"user")) return res.status(400).send({type:"bad request",data:"not valid email adress"})
-    db.all(`SELECT * FROM users WHERE email="${email}"`,(err,row) => {
+    db.all(`SELECT * FROM users WHERE id="${email}"`,(err,row) => {
         if(!row[0]) return res.status(401).send({type:"credentials",data:"wrong username/password"})
         row = row[0]
         if(err){ console.error(err); return res.status(500).send({type:"internal error",data:"could not fetch user data"})}
         bcrypt.compare(password,row.password,(err,resu) => {
             if(err){ console.error(err); return res.status(500).send({type:"internal error",data:"could not compare passwords"})}
             if(resu) {
-                req.session.user = {email:row.email,level:row.level} //set cookie session
+                req.session.user = {email:row.id,level:row.level} //set cookie session
                 return res.status(200).send({type:"logged in",data:"redirecting..."})
             } else {
                 return res.status(401).send({type:"credentials",data:"wrong username/password"})
@@ -69,15 +69,6 @@ router.use("/admin",(req,res,next) => {
     else next()
 })
 
-router.post("/admin/answer_request",(req,res) => {
-    const {id,answer} = req.body
-    if(!h.important_params([id,answer],res)) return
-    db.run(`UPDATE requests SET answer = "${answer}" WHERE id = "${id}"`,(err) => {
-        if(err) {console.error(err); return res.status(500).send({type:"internal error",data:"could not generate request"})}
-        else res.status(200).send({type:"OK",data:`request ticket edited`})
-    })
-})
-
 router.get("/admin/delete_request",(req,res) => {
     const id = req.query.id
     if(!h.important_params([id],res)) return
@@ -88,22 +79,11 @@ router.get("/admin/delete_request",(req,res) => {
 })
 
 router.get("/admin/get_users",(req,res) => {
-    db.all("SELECT * FROM users",(err,rows) => {
+    db.all("SELECT id, level FROM users",(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:"could not query users"})
-        else res.send(rows) //!!!WARNING!!! right now this also sends the password hash. 
+        else res.send(rows)
     })
 })
-
-router.post("/admin/edit_user",(req,res) => {
-    const {email, level} = req.body
-    if(!h.important_params([email,level],res)) return
-    db.all(`UPDATE users SET level = ${level} WHERE email = "${email}"`,(err) => {
-        if(err) return res.status(500).send({type:"internal error",data:"could not update users"})
-        else res.status(200).send({type:"OK",data:"updated user"})
-    })
-})
-
-
 
 module.exports = {
     type: "router",

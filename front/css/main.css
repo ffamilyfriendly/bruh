@@ -101,6 +101,11 @@ cursor: pointer;
     color: #1ED760;
 }
 
+.smallTitle {
+    color: grey;
+    font-size: 15px;
+}
+
 .green {
     color: #1ED760;
 }

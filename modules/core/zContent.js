@@ -32,7 +32,7 @@ router.get("/movie/:id",(req,res) => {
         row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
         if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
         if(!allowed(req,row)) return res.status(403).send({type:"unauthorized",data:"you are not allowed to view this content"})
-        res.sendFile(require("path").join(__dirname,"../../",row.path))
+        res.sendFile(row.path)
     })
 })
 
@@ -48,26 +48,22 @@ router.get("/info/:id",(req,res) => {
     })
 })
 
-// from here are admin endpoints
-
-//edit a movie
-router.post("/admin/edit_movie",(req,res) => {
-    const {id,changes} = req.body
-    if(!h.important_params([id,changes],res)) return
-    
+//this endpoint is EXTREMELY dangerous. It should be safe since user level is checked but i'll have to work on this
+router.post("/admin/save_changes",(req,res) => {
+    const {table,id,changes} = req.body
+    if(!h.important_params([table,id,changes],res)) return
     //construct SQL query... this code is very bodged but itworks™️
-    let sql = `UPDATE movies SET `
+    let sql = `UPDATE ${table} SET `
     const keys = Object.keys(changes)
     for(let i = 0; i < keys.length; i++) {
         let change = keys[i]
-        changes[change] = change === "level" ? changes[change] : `"${changes[change]}"`
+        changes[change] = typeof changes[change] == "number" ? changes[change] : `"${changes[change]}"`
         sql += `${change} = ${changes[change]}${keys[i+1] ? "," : ""} ` //bodge... such a lovely word
     }
     sql += ` WHERE id = "${id}"`
-
     db.all(sql,(err) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
-        else res.status(200).send({type:"OK",data:"updated movie table"})
+        else res.status(200).send({type:"OK",data:`updated "${table}" table`})
     })
 })
 
@@ -92,8 +88,11 @@ router.post("/admin/remove_movie",(req,res) => {
 })
 
 router.get("/admin/get_content",(req,res) => {
-    const ok = require("../../lib/loader")(conf.media.path)
-    res.send(ok)
+    let paths = []
+    for(let i = 0; i < conf.media.path.length; i++) {
+        paths.push(...require("../../lib/loader")(conf.media.path[i]))
+    }
+    res.send(paths)
 })
 
 //upload a movie
@@ -129,11 +128,6 @@ router.post("/admin/new_category",(req,res) => {
         else res.status(201).send({type:"created",data:media_path})
     })
 })
-
-/*
-TODO: add a way to manage categories as right now you can only create them
-*/
-
 
 module.exports = {
     type: "router",

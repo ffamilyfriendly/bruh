@@ -27,5 +27,5 @@ $(document).ready(() => {
 /* handle uncought errors */
 window.onerror = (err) => {
     const html = `<div style="background-color:red;" onclick="$(this).remove()" class="header"><b>Error:</b> ${err}</div>`
-    $("body").append(html)
+    $("body").prepend(html)
 }

@@ -1,3 +1,4 @@
+
 .warning {
     bottom: 0;
     left: 0;
@@ -16,6 +17,19 @@
     background-color: var(--floating);
     display: none;
 }
+
+.dashboard-module {
+    background-color: white;
+    display: inline-block;
+    background-color: var(--secondary);
+    color: var(--text_secondary);
+    width: 15%;
+}
+
+.dashboard-module svg {
+    float: left;
+}
+
 
 #bar {
     width: 1%;
@@ -95,3 +109,13 @@ tbody tr:nth-child(even) {
     border: 1px dashed black;
 }
 
+#select_file_body {
+    overflow-y: auto;
+    height: 90%;
+}
+
+@media only screen and (max-width: 1276px) {
+    .dashboard-module {
+        width: 80px;
+    }
+}
