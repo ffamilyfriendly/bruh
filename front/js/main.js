@@ -16,7 +16,7 @@ window.setting = {
         document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
     },
     get: key => {
-        return cookieDecode(key ? parseCookies(document.cookie)[key] : parseCookies(document.cookie))
+        return key ? cookieDecode(parseCookies(document.cookie)[key]) : parseCookies(document.cookie)
     }
 }
 
