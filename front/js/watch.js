@@ -42,7 +42,7 @@ $.get(`/api/info/${title}`,(data) => {
     $player.children(":first").attr("src",`/api/movie/${title}`) //set 
     const p = document.getElementById("player")
     p.load() //load
-    skipto()
+    p.onplay = skipto
     $("#loader").fadeOut()
     setInterval(timeChanged,1000)
 }).fail(err => {
