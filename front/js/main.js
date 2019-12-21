@@ -4,9 +4,9 @@ const cookieDecode = val => typeof val == "string" ? val.replace(/\*/g,"=") : va
 
 window.setting = {
     set: (key, value) => {
-        if(!window.setting.exists("cookies")) document.cookie = "cookies=false;" //if no cookie policy is set default to no cookies
+        if(!window.setting.exists("cookies")) document.cookie = "cookies=false; max-age=31536000;" //if no cookie policy is set default to no cookies
         if(key !== "cookies" && parseCookies(document.cookie)["cookies"] === "false") throw new Error("cookies forbidden") //if trying to write with cookie policy false throw err
-        document.cookie = `${key}=${cookieEncode(value)};` //write
+        document.cookie = `${key}=${cookieEncode(value)}; max-age=31536000;` //write
     },
     exists: key => {
         const settings = parseCookies(document.cookie)
