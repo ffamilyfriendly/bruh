@@ -1,12 +1,9 @@
 #player {
-    border: 1px solid green;
-    width: 50%;
+    width: 90%;
+    height: 500px;
+    border: 1px solid #1ED760;
 }
 
-#info {
-    width: 40%;
-    float: right;
-}
 
 #loader {
   position: fixed;
@@ -18,6 +15,24 @@
   bottom: 0;
   z-index: 2; 
   background-color: var(--secondary);
+}
+
+#optionsmenu {
+  z-index: 2;
+  display: none;
+  position: absolute;
+  background-color: rgba(128, 128, 128, 0.384);
+  padding: 10px;
+}
+
+#optionsmenu ul {
+  list-style: none;
+  padding: 0;
+}
+
+#optionsmenu a {
+  color: inherit;
+  text-decoration: none;
 }
 
 body {
@@ -64,7 +79,7 @@ body {
 
   @media only screen and (max-width: 650px) {
     #player {
-        width: 100%;
+        height: 200px;
     }
     #info {
         float: none;

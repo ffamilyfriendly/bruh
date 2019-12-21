@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="/static/css/watch.css">
     <script src="/static/js/main.js"></script>
     <script src="/static/js/watch.js"></script>
+
+    <!-- VIDEO.JS -->
+    <link href="https://unpkg.com/video.js@7/dist/video-js.min.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/7.5.5/video.js"></script>
+
+ 
 </head>
 <body>
     <div id="loader" class="center">
@@ -19,14 +25,15 @@
         <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
         </div>
     </div>
-    <video id="player" controls>
-        <source type="video/mp4">
-            your browser does not support html5
-    </video>
-    <div id="info">
+    <div id="info" class="container">
         <h1 id="movie_title" class="title">TITLE</h1>
         <h2><span class="green">category:</span> <span id="movie_category"></span></h2>
         <h2><span class="green">uploaded:</span> <span id="movie_uploaded"></span></h2>
+    </div>
+    <div id="optionsmenu">
+        <ul>
+            <li><a onclick="debugMenu()" href="#">debug</a></li>
+        </ul>
     </div>
 </body>
 </html>

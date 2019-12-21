@@ -1,3 +1,7 @@
+# 1.0.3
+**added:**
+* changed player from html4 native player to video.js to support more formats
+
 # 1.0.2
 **added:**
 * multiple storage locations
