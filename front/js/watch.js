@@ -18,10 +18,6 @@ function toDate(time) {
     return `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} at ${d.getHours()}:${d.getMinutes()}` //this is the restoftheworld format. If you feel like using "freedom time" just change it a bit
 }
 
-function getInf() {
-    const p = document.getElementById("player");
-}
-
 //This should work for ios now
 function skipto() {
     if(url.has("t")) {
@@ -50,7 +46,8 @@ function optionsmenu(event) {
     let firstclick = true
     const $menu = $("#optionsmenu")
     $menu.fadeIn()
-    $menu.css({left:event.pageX-($menu.width()+10),top:event.pageY-($menu.height()+10)})
+    const {left,top} = $(event.target).position()
+    $menu.css({left:left-($menu.width()+10),top:top-($menu.height()+10)})
     $("body").click((e) => {
         if(e.target.id !== "optionsmenu" && !$(e.target).parents("#optionsmenu").length && !firstclick) {
             $menu.fadeOut()
@@ -103,7 +100,7 @@ function createSource() {
     player = videojs.getPlayer("player")
     setupMeta()
     setupMenu()
-    skipto()
+    player.ready = skipto
 }
 
 $(document).ready(() => {
