@@ -9,7 +9,7 @@ const allowed = (req,row) => row.level <= req.session.user.level //function to c
 //get movies
 router.get("/get_movies",(req,res) => {
     const category = req.query.category //category query is optional. if one is passed only movies from that category will be returned
-    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${category}"`:""}`,(err,rows) => {
+    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${h.sqlEscape(category)}"`:""}`,(err,rows) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         else res.send(rows)
     })
@@ -27,7 +27,7 @@ router.get("/get_categories",(req,res) => {
 router.get("/movie/:id",(req,res) => {
     const id = req.params.id //id of movie
     if(!h.important_params([id],res)) return
-    db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
+    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
         if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
@@ -39,7 +39,7 @@ router.get("/movie/:id",(req,res) => {
 //get info about movie
 router.get("/info/:id",(req,res) => {
     const id = req.params.id
-    db.all(`SELECT * FROM movies WHERE id = "${id}"`,(err,row) => {
+    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}"`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         row = row[0]
         if(!row) return res.status(404).send({type:"not found",data:"media is not found"})

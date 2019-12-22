@@ -13,7 +13,7 @@ router.post("/login",(req,res) => {
     const {email, password} = req.body //extract emai and password from body
     if(!h.important_params([email,password],res)) return
     if(!h.validate([email],"user")) return res.status(400).send({type:"bad request",data:"not valid email adress"})
-    db.all(`SELECT * FROM users WHERE id="${email}"`,(err,row) => {
+    db.all(`SELECT * FROM users WHERE id="${h.sqlEscape(email)}"`,(err,row) => {
         if(!row[0]) return res.status(401).send({type:"credentials",data:"wrong username/password"})
         row = row[0]
         if(err){ console.error(err); return res.status(500).send({type:"internal error",data:"could not fetch user data"})}
@@ -38,7 +38,7 @@ router.post("/register",(req,res) => {
         if(err) {console.error(err); return res.status(500).send({type:"internal error",data:"could not generate salt"})}
         bcrypt.hash(password,salt,(err,hash) => {
             if(err) {console.error(err); return res.status(500).send({type:"internal error",data:"could not generate hash"})}
-            db.run(`INSERT INTO users VALUES("${email}","${hash}",0)`,(err) => {
+            db.run(`INSERT INTO users VALUES("${h.sqlEscape(email)}","${hash}",0)`,(err) => {
                 if(err) {return res.status(500).send({type:"internal error",data:"could not save user"})}
                 else return res.status(201).send({type:"created",data:"user created! logging in..."})
             })
@@ -57,7 +57,7 @@ router.get("/get_requests",(req,res) => {
 router.post("/new_request",(req,res) => {
     const request = req.body.request
     if(!h.important_params([request],res)) return
-    db.run(`INSERT INTO requests VALUES ("${h.generate_id(2000)}","${request}","not answered")`,(err) => {
+    db.run(`INSERT INTO requests VALUES ("${h.generate_id(2000)}","${h.sqlEscape(request)}","not answered")`,(err) => {
         if(err) {console.error(err); return res.status(500).send({type:"internal error",data:"could not generate hash"})}
         else res.status(201).send({type:"created",data:`request ticket created`})
     })
