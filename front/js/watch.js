@@ -45,9 +45,8 @@ function debugMenu() {
 function optionsmenu(event) {
     let firstclick = true
     const $menu = $("#optionsmenu")
-    const pos = $(event.target).position()
     $menu.fadeIn()
-    $menu.css({left:pos.left,top:pos.top})
+    $menu.css({left:event.pageX,top:event.pageY})
     $("body").click((e) => {
         if(e.target.id !== "optionsmenu" && !$(e.target).parents("#optionsmenu").length && !firstclick) {
             $menu.fadeOut()
