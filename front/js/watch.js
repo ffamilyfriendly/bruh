@@ -47,6 +47,7 @@ function optionsmenu(event) {
     const $menu = $("#optionsmenu")
     $menu.fadeIn()
     const pos = $(event.target).position()
+    console.log(pos)
     $menu.css({left:pos.left-($menu.width()+10),top:pos.top-($menu.height()+10)})
     $("body").click((e) => {
         if(e.target.id !== "optionsmenu" && !$(e.target).parents("#optionsmenu").length && !firstclick) {
@@ -100,7 +101,7 @@ function createSource() {
     player = videojs.getPlayer("player")
     setupMeta()
     setupMenu()
-    player.oncanplay = skipto
+    player.onplay = skipto
 }
 
 $(document).ready(() => {
