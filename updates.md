@@ -1,3 +1,7 @@
+# 1.0.5
+**added:**
+* support for airplay (hopefully)
+
 # 1.0.4
 **added:**
 * sql injection protection... oops

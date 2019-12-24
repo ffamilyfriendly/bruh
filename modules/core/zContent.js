@@ -3,8 +3,7 @@ const fs = require("fs")
 const conf = require("../../config")
 const h = require("../../lib/helpers")
 const db = require("./database").db
-
-const allowed = (req,row) => row.level <= req.session.user.level //function to check if user can view content
+const store = require("../../index").store //cookie store
 
 //get movies
 router.get("/get_movies",(req,res) => {
@@ -24,26 +23,32 @@ router.get("/get_categories",(req,res) => {
 })
 
 //send movie
-router.get("/movie/:id",(req,res) => {
-    const id = req.params.id //id of movie
-    if(!h.important_params([id],res)) return
-    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}"`,(err,row) => {
-        if(err) return res.status(500).send({type:"internal error",data:err})
-        row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
-        if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
-        if(!allowed(req,row)) return res.status(403).send({type:"unauthorized",data:"you are not allowed to view this content"})
-        res.sendFile(row.path)
+
+/*
+this method now requires you to pass the session id. this is to allow airplay since it isnt working in earlier versions
+due to it getting blocked by the "not logged in filter". Hopefully this way the media is "publicly" availible as long as you have the link
+*/
+router.get("/movie/:session/:id",(req,res) => {
+    const {session,id} = req.params //id of movie
+    store.get(session,(err,sess) => {
+        if(!h.important_params([id,session,sess],res)) return
+        const user = sess.user
+        db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}" AND level < ${user.level}`,(err,row) => {
+            if(err) return res.status(500).send({type:"internal error",data:err})
+            row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
+            if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
+            res.sendFile(row.path)
+        })
     })
 })
 
 //get info about movie
 router.get("/info/:id",(req,res) => {
     const id = req.params.id
-    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}"`,(err,row) => {
+    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}" AND level < ${req.session.user.level}`,(err,row) => {
         if(err) return res.status(500).send({type:"internal error",data:err})
         row = row[0]
         if(!row) return res.status(404).send({type:"not found",data:"media is not found"})
-        if(!allowed(req,row)) return res.status(403).send({type:"unauthorized",data:"you are not allowed to view this content"})
         res.send(row)
     })
 })

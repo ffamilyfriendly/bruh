@@ -91,17 +91,19 @@ function createSource() {
 
     //create source
     var sourceTag = document.createElement("source")
-    sourceTag.setAttribute('src', `api/movie/${title}`);
-    sourceTag.setAttribute('type', 'video/mp4');
-    vid.appendChild(sourceTag)
-    document.getElementById('info').prepend(vid);
-    videojs("player")
-    player = videojs.getPlayer("player")
-    setupMeta()
-    setupMenu()
-    player.one("play",() => {
-        skipto()
-    }) 
+    $.get("/api/update_user",(data) => {
+        sourceTag.setAttribute('src', `api/movie/${data.data}/${title}`);
+        sourceTag.setAttribute('type', 'video/mp4');
+        vid.appendChild(sourceTag)
+        document.getElementById('info').prepend(vid);
+        videojs("player")
+        player = videojs.getPlayer("player")
+        setupMeta()
+        setupMenu()
+        player.one("play",() => {
+            skipto()
+        }) 
+    })
 }
 
 $(document).ready(() => {

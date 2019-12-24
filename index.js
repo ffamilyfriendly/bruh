@@ -1,32 +1,37 @@
 const express = require("express")
 const app = express()
 const config = require("./config")
-const cs = require("cookie-session")
-
+const cs = require("express-session")
+const store = new cs.MemoryStore()
 const getFileList = require("./lib/loader")
 app.use(require("body-parser").urlencoded({extended:true}))
 app.use(cs({
-    name:"session",
-    keys:["bruh"],
-    maxAge: 24 * 60 * 60 * 1000
+    secret:config.cookie_secret,
+    resave: true,
+    saveUninitialized: true,
+    store:store
 }))
 const fileUpload = require("express-fileupload")
 app.use(fileUpload())
 app.use("/static",express.static("front"))
 
-getFileList("./modules").forEach(m => {
-    const module = require(m)
+module.exports = {
+    store:store
+}
 
-    if(module.enabled === false) {
+getFileList("./modules").forEach(m => {
+    const mod = require(m)
+
+    if(mod.enabled === false) {
         console.log(`module "${m}" disabled`)
     } else {
         let load_text = `\nloaded module "${m}"`
-        load_text = "#".repeat(load_text.length) + load_text + `\n-type:${module.type}` 
+        load_text = "#".repeat(load_text.length) + load_text + `\n-type:${mod.type}` 
         console.log(load_text)
-        if(module.type === "router") {
-            app.use(module.base_url,module.router)
-        } else if(module.type === "modules") {
-            module.run()
+        if(mod.type === "router") {
+            app.use(mod.base_url,mod.router)
+        } else if(mod.type === "modules") {
+            mod.run()
         }
     }
 })
