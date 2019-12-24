@@ -46,6 +46,16 @@ router.post("/register",(req,res) => {
     })
 })
 
+router.get("/update_user",(req,res) => {
+    const email = req.session.user.email
+    db.all(`SELECT * FROM users WHERE id = "${email}"`,(err,rows) => {
+        const row = rows[0]
+        if(!row || err) return res.status(500).send({type:"internal error",data:"could not get user"})
+        req.session.user = {email:row.id,level:row.level} //set cookie session
+        return res.send({type:"OK",data:"updated user"})
+    })
+})
+
 //requests are public
 router.get("/get_requests",(req,res) => {
     db.all("SELECT * FROM requests",(err,rows) => {
