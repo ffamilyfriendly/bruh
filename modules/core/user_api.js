@@ -46,6 +46,11 @@ router.post("/register",(req,res) => {
     })
 })
 
+router.get("/logout",(req,res) => {
+    req.session.destroy()
+    res.redirect("/")
+})
+
 router.get("/update_user",(req,res) => {
     const email = req.session.user.email
     db.all(`SELECT * FROM users WHERE id = "${email}"`,(err,rows) => {

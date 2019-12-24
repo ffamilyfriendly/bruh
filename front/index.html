@@ -29,7 +29,7 @@
     <div class="header">
         <h1 style="display: inline;">BRUH</h1> <ul style="float: right;" class="navbar">
                 <li><a href="/home">watch</a></li>
-            <li><a href="/login?redirect=%2Fhome" class="btn-green">sign in</a></li>
+            <li><a id="sig" href="/login?redirect=%2Fhome" class="btn-green">sign in</a></li>
         </ul>
     </div>
     <div class="container">
@@ -68,5 +68,14 @@
             </ul>
         </footer>
     </div>
+    <script>
+    /* this is the only page with inline JS. this is because the only reason to even have JS here is the check if user is logged in... */
+    $.get("/api/update_user",(data) => {
+        if(data) {
+            $("#sig").text("log out")
+            $("#sig").attr("href","/api/logout")
+        }
+    })
+    </script>
 </body>
 </html>
