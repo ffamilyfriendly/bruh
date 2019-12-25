@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,13 +14,22 @@
     <script src="/static/js/main.js"></script>
     <script src="/static/js/home.js"></script>
 </head>
+
 <body>
-    <div id="last" class="banner">continue where you last left off <a id="go_button" class="btn-border btn-curved">go!</a><hr class="mobile"><button onclick="dismiss_last()" style="float: right; margin-right: 5%; background-color: transparent;">X</button></div>
+    <div id="last" class="banner">continue where you last left off <a id="go_button"
+            class="btn-border btn-curved">go!</a>
+        <hr class="mobile"><button onclick="dismiss_last()"
+            style="float: right; margin-right: 5%; background-color: transparent;">X</button></div>
     <div id="loader" class="center">
         <div class="centerDiv">
-        <h1 class="title">loading...</h1>
-        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-    </div>
+            <h1 class="title">loading...</h1>
+            <div class="lds-ring">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
     </div>
     <div id="overlay">
         <button class="btn-green btn-curved" onclick="$('#overlay').fadeOut()">close</button>
@@ -28,8 +38,10 @@
 
         </ul>
     </div>
-    <div id="requestOverlay" style="background-color: var(--floating); color:var(--text_primary); padding: 10px; display: none;" class="centerDiv">
-    <button onclick="$('#requestOverlay').hide()" class="btn-yellow">close</button> Request movie
+    <div id="requestOverlay"
+        style="background-color: var(--floating); color:var(--text_primary); padding: 10px; display: none;"
+        class="centerDiv">
+        <button onclick="$('#requestOverlay').hide()" class="btn-yellow">close</button> Request movie
         <div id="request_body" style="margin: 10px;">
             <input id="request" type="text" placeholder="movie name"> <button onclick="request_movie()">send</button>
             <hr>
@@ -45,4 +57,5 @@
         <section id="listing"></section>
     </div>
 </body>
+
 </html>

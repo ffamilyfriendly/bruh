@@ -11,7 +11,7 @@ const run = () => {
 }
 
 module.exports = {
-    db:db,
+    db: db,
     type: "modules",
-    run:run
+    run: run
 }
