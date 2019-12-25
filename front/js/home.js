@@ -43,7 +43,7 @@ $(document).ready(() => {
     load_tickets()
     $.get("/api/get_categories",(data) => {
         for(let row in data) {
-            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].id}')" href="#"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].id}.png"></a>`)
+            $("#listing").append(`<a class="category" onclick="show_listing('${data[row].id}')" href="#"><img onerror="this.src='/static/assets/default.png'" src="static/assets/${data[row].id}.png"><span>${data[row].id}</span></a>`)
         }
         $loader.fadeOut()
     })
