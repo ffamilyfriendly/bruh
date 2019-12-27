@@ -20,7 +20,7 @@ router.get("/register", (req, res) => {
 //middleware to make sure user is logged in. 
 router.use((req, res, next) => {
     const exclude = ["/api/login", "/api/register"] //exclude endpoints used to log in
-    if (req.url.includes("/api/movie/")) return next() //this might cause issues... or not
+    if (req.url.includes("/api/movie/") || req.url.includes("/direct/")) return next() //this might cause issues... or not
     if (!req.session.user && !exclude.includes(req.url)) return res.redirect(`/login?redirect=${encodeURI(req.url)}`) //if there is no user obj redirect to login page 
     else next() //if user object continue
 })
