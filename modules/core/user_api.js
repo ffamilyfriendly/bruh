@@ -57,8 +57,12 @@ router.get("/update_user", (req, res) => {
         const row = rows[0]
         if (!row || err) return res.status(500).send({ type: "internal error", data: "could not get user" })
         req.session.user = { email: row.id, level: row.level } //set cookie session
-        return res.send({ type: "OK", data: req.sessionID }) //return cookie ID.
+        return res.send({ type: "OK", data: req.session.user }) //return cookie ID.
     })
+})
+
+router.get("/session",(req,res) => {
+    return res.send({type:"OK",data:req.sessionID})
 })
 
 //requests are public

@@ -91,7 +91,7 @@ function createSource() {
 
     //create source
     var sourceTag = document.createElement("source")
-    $.get("/api/update_user",(data) => {
+    $.get("/api/session",(data) => {
         sourceTag.setAttribute('src', `api/movie/${data.data}/${title}`);
         sourceTag.setAttribute('type', 'video/mp4');
         vid.appendChild(sourceTag)

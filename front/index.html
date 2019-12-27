@@ -86,7 +86,7 @@
     </div>
     <script>
         /* this is the only page with inline JS. this is because the only reason to even have JS here is the check if user is logged in... */
-        $.get("/api/update_user", (data) => {
+        $.get("/api/session", (data) => {
             if (data.data) {
                 $("#sig").text("log out")
                 $("#sig").attr("href", "/api/logout")

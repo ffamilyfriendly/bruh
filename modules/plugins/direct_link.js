@@ -9,7 +9,7 @@ const direct_links = {
 
 router.get("/:id", (req, res) => {
     if (!h.important_params([req.params.id], res)) return
-    if(!direct_links[req.params.id]) return res.redirect("/index")
+    if(!direct_links[req.params.id]) return res.redirect("/")
     else {
         req.session.user = {email:"_temp",level:direct_links[req.params.id]}
         return res.redirect("/home")
