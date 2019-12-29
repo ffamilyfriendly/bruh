@@ -2,11 +2,20 @@ const parseCookies = cs => Object.fromEntries(cs.split('; ').map(x => x.split('=
 const cookieEncode = val => typeof val == "string" ? val.replace(/\=/g,"*") : val
 const cookieDecode = val => typeof val == "string" ? val.replace(/\*/g,"=") : val
 
+//function that generates a data in the future for cookie to not dissapear in 5 seconds i swear to god
+function getDateInFuture() {
+    let now = new Date()
+    let time = now.getTime()
+    time += 1000*36000
+    now.setTime(time)
+    return now
+}
+
 window.setting = {
     set: (key, value) => {
         if(!window.setting.exists("cookies")) document.cookie = "cookies=false; max-age=31536000;" //if no cookie policy is set default to no cookies
         if(key !== "cookies" && parseCookies(document.cookie)["cookies"] === "false") throw new Error("cookies forbidden") //if trying to write with cookie policy false throw err
-        document.cookie = `${key}=${cookieEncode(value)}; max-age=31536000;` //write
+        document.cookie = `${key}=${cookieEncode(value)}; expires=${getDateInFuture().toUTCString()};` //write
     },
     exists: key => {
         const settings = parseCookies(document.cookie)
