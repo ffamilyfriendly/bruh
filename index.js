@@ -9,7 +9,10 @@ app.use(cs({
     secret: config.cookie_secret,
     resave: true,
     saveUninitialized: true,
-    store: store
+    store: store,
+    cookie: {
+        maxAge: 30 * 24 * 60 * 60 * 1000
+    }
 }))
 const fileUpload = require("express-fileupload")
 app.use(fileUpload())
