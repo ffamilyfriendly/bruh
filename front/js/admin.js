@@ -1,28 +1,14 @@
 function upload_movie() {
-    const $stat = $("#fileStat")
-    const $statxt = $stat.children(":first")
-    const $bar = $("#bar") //Imma be honest with you cheif... this bar is useless but it gives people hope
-    $stat.slideDown() //slide down fole uplaod status thing
-    $statxt.text("starting uploading process...") 
-    $bar.css("width","10%")
-
-    const path = $("#file_path").val()
-    const name = $("#name").val()
-    const category = $("#category").val()
-    const level = $("#level").val()
-
-
-    
+    const path = $("#movie_path").val()
+    const name = $("#movie_name").val()
+    const category = $("#movie_category").val()
+    const level = $("#movie_level").val()   
     $.ajax({
         type:"POST",
         url:"/api/admin/upload",
         data:{path,name,category,level},
         success: data => {
-            $bar.css("width","100%")
-            $statxt.text(`media created! path:${data}`)
-            setTimeout(() => { //timeout so user has time to read
-                $stat.slideUp()
-            },3000) 
+            location.reload()
         },
         error: err => {
             window.popup("error","could not save movie. (check logs)")
@@ -31,41 +17,16 @@ function upload_movie() {
     })
 }
 
-const upload_category = e => {
-    e.preventDefault()
-
-    const $stat = $("#fileStat")
-    const $statxt = $stat.children(":first")
-    const $bar = $("#bar") //Imma be honest with you cheif... this bar is useless but it gives people hope
-
-    $stat.slideDown() //slide down fole uplaod status thing
-    $statxt.text("starting uploading process...") 
-    $bar.css("width","10%")
-
-    const $file = $("input[name='category_image']") //get file input
-    const $name = $("input[name='category_name']")
-    const $level = $('input[name="category_level"]')
-    const file = $file.prop("files")[0]
-
-    if(!$name.val()) return $stat.slideUp()
-
-    const fd = new FormData()
-    fd.append("name",$name.val())
-    fd.append("level",$level.val())
-    file ? fd.append("image",file) : null
-    console.log(fd)
+function upload_category() {
+    const image = $("#category_image").val()
+    const name = $("#category_name").val()
+    const level = $("#category_level").val()   
     $.ajax({
         type:"POST",
         url:"/api/admin/new_category",
-        data:fd,
-        processData:false,
-        contentType:false,
+        data:{image,name,level},
         success: data => {
-            $bar.css("width","100%")
-            $statxt.text(`media created! path:${data}`)
-            setTimeout(() => { //timeout so user has time to read
-                $stat.slideUp()
-            },3000) 
+            location.reload()
         },
         error: err => {
             window.popup("error","could not save category. (check logs)")
@@ -177,7 +138,6 @@ $(document).ready(() => {
         const $id = $(this).attr("trigger")
         $(`#${$id}`).toggle()
     })
-    $("#_categories").submit(upload_category)
 })
 
 function select_filepath(path) {
@@ -186,26 +146,31 @@ function select_filepath(path) {
     $("#file_path").val(path)
 }
 
-function select_file() {
-    const $overlay = $("#select_file_overlay")
-    const $list = $("#select_file_list")
-    $list.empty()
-    $.get("/api/admin/get_content",(data) => {
-        console.log(data)
-        for(let file in data) {
-            /*right now only mp4 is supported.
-            feel free to edit support based on availible formats https://www.w3schools.com/html/html5_video.asp
-            */
-            try {
-            $list.append(`<li style="cursor: pointer;" onclick="select_filepath('${data[file]}')">${data[file]}${[".mp4",".ogg"].includes(data[file].match(/\.\w{1,5}$/gi)[0]) ? "" : " <b style='color:red;'>(format not supported)</b>"}</li>`)
-            } catch(err) {
-                console.warn(err)
-            }
+function suggest_file(files) {
+    const inputValue = $("#movie_path").val()
+    const $s = $("#suggest_movies")
+    if(inputValue != "" && files.length != 0) {
+        $s.show()
+    } else $s.hide()
+    $s.empty()
+    const $p = $("#movie_path") 
+    const pos = $p.position()
+    for(let i = 0; i < files.length; i++) {
+        const matched = files[i].split(inputValue)
+        if(inputValue === files[i]) {
+            $s.hide()
+            return
         }
-        $overlay.show()
-    }).fail(err => {
-        window.popup("error","could not get files (check logs)")
-        console.error(err)
+        $s.append(`<li><b>${inputValue}</b>${matched[1]}</li>`)
+    }
+    $s.css({width:$p.css("width"),left:pos.left+"px",top:(pos.top+$s.height())+"px"})
+}
+
+function media_path(e) {
+    const curr_val = $("#movie_path").val()
+    $.get("/api/admin/get_content",(data) => {
+        data = data.filter(f => f.startsWith(curr_val))
+        suggest_file(data)
     })
 }
 

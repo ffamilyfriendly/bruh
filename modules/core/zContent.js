@@ -111,15 +111,10 @@ router.post("/admin/upload", (req, res) => {
 
 //create a category
 router.post("/admin/new_category", (req, res) => {
-    const { name, level } = req.body
+    const { name, level, image } = req.body
     if (!h.important_params([name, level], res)) return
-    const image = req.files ? req.files.image : null //image
-    let media_path //initialize media path
+    let media_path = image||"./front/assets/defualt.png"
 
-    if (image) {
-        media_path = `./front/assets/${name}.png`
-        fs.writeFileSync(media_path, image.data)
-    } else media_path = "./front/assets/defualt.png"
     db.run(`INSERT INTO categories VALUES ("${name}","${media_path}",${level})`, (err) => {
         if (err) return res.status(500).send({ type: "internal error", data: err });
         else res.status(201).send({ type: "created", data: media_path })

@@ -41,8 +41,7 @@
     <!-- MAIN DASHBOARD OVERVIEW -->
     <div class="page" id="dashboard">
         <h1 class="title">Dashboard <small
-                onclick="window.popup('info','build 1.0.0<br>added:<ul><li>overview (what you are seeing right now)</li><li>requests</li></ul>')"
-                class="smallTitle">version 1.0.0</small></h1>
+                class="smallTitle">version 1.1.0</small></h1>
         <div>
             <div onclick="window.location = '#user_manage'" class="dashboard-module">
                 <svg style="background-color: blue; padding:20px;" xmlns="http://www.w3.org/2000/svg" width="40"
@@ -109,16 +108,21 @@
 
         <h1 class="green">upload</h1>
         <hr>
-        <div id="FORM">
-            <button value="" id="file_path" onclick="select_file()">select file</button>
-            <input type="text" id="name" placeholder="name"><br>
-            <input type="text" id="category" placeholder="category"><br>
-            <input type="number" id="level" placeholder="1"><br>
-            <button onclick="upload_movie()" class="btn-green btn-curved"><svg style="fill: white;"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                    <path
-                        d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-9.479 5.908v-6l5 3-5 3z" />
-                    </svg></button>
+        <div class="upload">
+            <div class="upload-header">
+                new movie
+            </div>
+            <div class="upload-body">
+                <b>name:</b>
+                <input id="movie_name" placeholder="NEW MOVIE FEAT COOL CAST" type="text">
+                <b>category:</b>
+                <input id="movie_category" placeholder="cba to think of placeholder" type="text">
+                <b>media path:</b>
+                <input id="movie_path" onkeyup="media_path()" placeholder="/media/not_pr0n.mp4" type="text">
+                <b>level:</b>
+                <input id="movie_level" type="number">
+                <button onclick="upload_movie()">upload</button>
+            </div>
         </div>
     </div>
     <div class="page" id="dash_categories">
@@ -130,16 +134,20 @@
         </table>
         <h1 class="green">upload</h1>
         <hr>
-        <form id="_categories">
-            <input type="text" placeholder="name" name="category_name"> <input type="number" placeholder="1"
-                name="category_level">
-            <input type="file" name="category_image" accept="image/png"><br>
-            <button class="btn-green btn-curved"><svg style="fill: white;" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" viewBox="0 0 24 24">
-                    <path
-                        d="M19.479 10.092c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h13c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408zm-9.479 5.908v-6l5 3-5 3z" />
-                    </svg></button>
-        </form>
+        <div class="upload">
+            <div class="upload-header">
+                new category
+            </div>
+            <div class="upload-body">
+                <b>name:</b>
+                <input id="category_name" placeholder="NEW MOVIE FEAT COOL CAST" type="text">
+                <b>thumbnail path:</b>
+                <input id="category_image" placeholder="/home/you/bruh/front/assets/bruh.png" type="text">
+                <b>level:</b>
+                <input id="category_level" type="number">
+                <button onclick="upload_category()">upload</button>
+            </div>
+        </div>
     </div>
     <div class="page" id="dash_requests">
         <h1 class="title">requests</h1>
@@ -149,22 +157,12 @@
         </table>
     </div>
 
+    <ul id="suggest_movies">
+        <li>test</li>
+    </ul>
     <div id="unsaved_warning" class="warning">
         you have unsaved settings <button style="margin-left: 10px;" onclick="save()"
             class="btn-border btn-curved">save</button>
-    </div>
-    <div id="fileStat" class="floating_header">
-        <span id="fileStat_text">text</span>
-        <div id="bar"></div>
-    </div>
-    <div id="select_file_overlay" class="centerDiv">
-        <button class="btn-yellow" onclick="$('#select_file_overlay').hide()">close</button> <b>Select media path</b>
-        <hr>
-        <div id="select_file_body">
-            <ul id="select_file_list">
-
-            </ul>
-        </div>
     </div>
 </body>
 

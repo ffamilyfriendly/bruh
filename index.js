@@ -14,8 +14,6 @@ app.use(cs({
         maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }))
-const fileUpload = require("express-fileupload")
-app.use(fileUpload())
 app.use("/static", express.static("front"))
 
 module.exports = {
