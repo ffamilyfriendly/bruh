@@ -8,7 +8,8 @@ const store = require("../../index").store //cookie store
 //get movies
 router.get("/get_movies", (req, res) => {
     const category = req.query.category //category query is optional. if one is passed only movies from that category will be returned
-    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${h.sqlEscape(category)}"` : ""}`, (err, rows) => {
+    const name = req.query.name
+    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${h.sqlEscape(category)}"` : ""}${name ? `AND name = "${h.sqlEscape(name)}"` : ""}`, (err, rows) => {
         if (err) return res.status(500).send({ type: "internal error", data: err })
         else res.send(rows)
     })

@@ -1,15 +1,52 @@
 const _url = new URL(window.location.href)
 const url = new URLSearchParams(_url.search)
 const title = url.get("v")
+const season = {
+    isSeries:false,
+    episode:00,
+    seson:00,
+    name:"",
+    hasNotified:false
+}
 let player
 
+function endsSoon() {
+    if(season.isSeries && !season.hasNotified) {
+        if(player.isFullscreen()) player.exitFullscreen()
+        $("#notification-next").show()
+        setTimeout(function() {
+            let nrm = Number(season.episode)+1
+            let constructedName = `${season.name.split(/S[0-9]{2,}E[0-9]{2,}/gi)[0]}S${season.seson}E${nrm < 10 ?  `0${nrm}` : `${nrm}` }`
+            $.get(`/api/get_movies?name=${constructedName}`,(data) => {
+                if(!data[0]) return console.log("not found")
+                else window.location = `/watch?v=${data[0].id}`
+            })
+        },1000*10)
+        season.hasNotified = true
+    }
+}
 
 function timeChanged() {
     try {
         window.setting.set("last_watched",title)
         window.setting.set("last_watched_time",player.currentTime())
+        if(player.currentTime() > player.duration()-10) endsSoon()
     } catch(err) {
         //we could do something here... but nah
+    }
+}
+
+function parseTitle(title) {
+    try {
+
+    
+    const return_inf = {
+        season: title.match(/S[0-9]{2,}/)[0].split("S")[1],
+        episode: title.match(/E[0-9]{2,}/)[0].split("E")[1]
+    }
+    return return_inf
+    } catch(err) {
+        console.warn(err)
     }
 }
 
@@ -72,6 +109,14 @@ function setupMeta() {
     $.get(`/api/info/${title}`,(data) => {
         const meta = JSON.parse(data.meta)
         $("#movie_title").text(data.name)
+        const episodem = parseTitle(data.name)
+        if(episodem) {
+            season.episode = episodem.episode
+            season.seson = episodem.season
+            season.name = data.name
+            season.isSeries = !!episodem.episode
+        }
+
         $("#movie_category").text(data.category)
         $("#movie_uploaded").text(toDate(meta.uploaded))
         $("#loader").fadeOut()

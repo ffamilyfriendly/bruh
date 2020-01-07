@@ -1,3 +1,7 @@
+# 1.0.6
+**added:**
+* auto-play for correctly formatted series (S01E01 and so on)
+
 # 1.0.5
 **added:**
 * support for airplay (hopefully)

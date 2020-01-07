@@ -80,6 +80,17 @@ body {
     }
 }
 
+#notification-next {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--floating);
+    padding: 10px;
+    display: none;
+}
+
+
 @media only screen and (max-width:650px) {
     #player {
         height: 200px

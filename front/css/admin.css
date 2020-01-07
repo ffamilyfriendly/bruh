@@ -110,6 +110,7 @@ tbody tr:nth-child(even) {
     border: 2px solid var(--floating);;
     border-radius: 5px;
     margin-right: 10%;
+    margin-bottom: 10vh;
 }
 
 .upload-header {
