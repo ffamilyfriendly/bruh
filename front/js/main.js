@@ -1,50 +1,183 @@
-const parseCookies = cs => Object.fromEntries(cs.split('; ').map(x => x.split('=')))
-const cookieEncode = val => typeof val == "string" ? val.replace(/\=/g,"*") : val
-const cookieDecode = val => typeof val == "string" ? val.replace(/\*/g,"=") : val
+//Global vars. will try to keep short
+var collection = {}
 
-//function that generates a data in the future for cookie to not dissapear in 5 seconds i swear to god
-function getDateInFuture() {
-    let now = new Date()
-    let time = now.getTime()
-    time += 1000*36000
-    now.setTime(time)
-    return now
+function parseData(obj) {
+    var keys = Object.keys(obj)
+    var returnstring = ""
+    for(var i = 0; i < keys.length; i++) {
+        returnstring+="&"+keys[i]+"="+obj[keys[i]]
+    }
+    return returnstring
 }
 
-window.setting = {
-    set: (key, value) => {
-        if(!window.setting.exists("cookies")) document.cookie = "cookies=false; max-age=31536000;" //if no cookie policy is set default to no cookies
-        if(key !== "cookies" && parseCookies(document.cookie)["cookies"] === "false") throw new Error("cookies forbidden") //if trying to write with cookie policy false throw err
-        document.cookie = `${key}=${cookieEncode(value)}; expires=${getDateInFuture().toUTCString()};` //write
-    },
-    exists: key => {
-        const settings = parseCookies(document.cookie)
-        return typeof settings[key] != "undefined"
-    },
-    remove: key => {
-        document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
-    },
-    get: key => {
-        return key ? cookieDecode(parseCookies(document.cookie)[key]) : parseCookies(document.cookie)
+function request(options, cb) {
+    var xhr = new XMLHttpRequest()
+        xhr.open(options.type, options.url, true)
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+        xhr.send(options.data)
+        xhr.onreadystatechange = function() {
+            if(window.debug) console.log(xhr.response)
+            if(xhr.readyState === 4) return cb(JSON.parse(xhr.response))
+        }
+}
+
+
+/*
+<div class="card" style="width: 18rem;">
+  <img src="..." class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">Card title</h5>
+    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <a href="#" class="btn btn-primary">Go somewhere</a>
+  </div>
+</div>
+*/
+
+function loadCat(id) {
+    if(!id) return
+    console.log(id)
+    var m = document.getElementById("categories")
+    var f = document.getElementById("media")
+    if(!m) return
+    m.innerHTML = ""
+    request({
+        type:"GET",
+        url:"/api/media?filter="+id
+    },function(data) {
+        if(data.type === "OK") {
+            console.log(data)
+            var cats = data.data
+            for(var i = 0; i < cats.length; i++) {
+                cats[i].data = JSON.parse(cats[i].data)
+                var e = document.createElement("div")
+                e.classList = "card category"
+                e.style.width = "18rem"
+                if(cats[i].type === "category") {
+                    e.innerHTML = `
+                    <a onclick="loadCat('${cats[i].id}')" href="#${cats[i].id}">
+                    <img src="${cats[i].data.image}" class="card-img-top" alt="NO image found">
+                    <div class="card-body">
+                      <h5 class="card-title">${cats[i].id}</h5>
+                      <p class="card-text">${cats[i].data.description||"No description"}</p>
+                    </div>
+                    </a>
+                    `
+                    m.append(e)
+                } else {
+                    e.innerHTML = `
+                    <a href="/watch?v=${cats[i].id}">
+                    <img src="${cats[i].data.image}" class="card-img-top" alt="NO image found">
+                    <div class="card-body">
+                      <h5 class="card-title">${cats[i].data.name||"No name"}</h5>
+                      <p class="card-text">${cats[i].data.description||"No description"}</p>
+                    </div>
+                    </a>
+                    `
+                    f.append(e)
+                }
+                
+            }
+        }
+    })
+
+
+}
+
+function loadCollections() {
+    loadCat(window.location.hash.substring(1)||"NOPARENT")
+}
+
+function isLoggedIn() {
+    request({ type: "GET", url: "/api/session" }, function (data) {
+        if (data.type === "OK") {
+            document.documentElement.setAttribute("loggedIn", "true")
+            loadCollections()
+        }
+    })
+}
+
+function login() {
+    var password = document.getElementById("password").value
+    var username = document.getElementById("username").value
+    var warning = document.getElementById("login_warning")
+    if (!password || !username) {
+        warning.innerText = "password or username field not filled in"
+        warning.style.display = "inherit"
+        warning.classList = "alert alert-warning"
+        return
+    }
+    request({
+        url: "/api/login",
+        type: "POST",
+        data: "password=" + password + "&username=" + username
+    }, (data) => {
+        if (data.type == "logged in") {
+            warning.innerText = "Logged in!"
+            warning.style.display = "inherit"
+            warning.classList = "alert alert-success"
+            setTimeout(function () { window.location.reload() }, 3000)
+        } else {
+            warning.innerText = "Error: " + data.data
+            warning.style.display = "inherit"
+            warning.classList = "alert alert-danger"
+        }
+    })
+}
+
+/*
+const fs = require("fs")
+module.exports = dir => {
+    let res = []
+    fs.readdirSync(dir).forEach(file => {
+        const fileDir = `${dir}/${file}`
+        const stat = fs.statSync(fileDir)
+
+        if (stat && stat.isDirectory())
+            res = [...res, ...module.exports(fileDir)]
+        else res.push(fileDir)
+    })
+
+    return res
+
+}
+*/
+
+function parsePaths(data) {
+    var arr = data.split("/")
+    for (let i = 0; i < arr.length; i++) {
+        let item = arr[i]
+        if (!collection[item] && arr[i + 1]) collection[item] = {}
+        else { collection[arr[i - 1]] = item }
     }
 }
 
-window.popup = (type,data) => {
-    const html = `<div class="centerDiv popup popup-${type}">
-    <h1 class="center">${type}</h1>
-    <p>${data}</p>
-    <button onclick='$(this).parent().remove()'>Dismiss</button>
-    </div>`
-    $("body").prepend(html)
+function collections() {
+    //<li class="tab col s3"><a href="#test1">Test 1</a></li>
+    var cList = document.getElementById("collections")
+    if (!cList) return
+    request({
+        type: "GET",
+        url: "/api/collections"
+    }, function (data) {
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i]
+            var cat = document.createElement("li")
+            cat.classList = "tab col s3"
+            cat.innerHTML = "<a onclick='loadCat(\"" + item.id + "\")' href='#" + item.id + "'>" + item.id + "</a>"
+            cList.append(cat)
+        }
+    })
 }
 
-$(document).ready(() => {
-    if(!window.setting.exists("cookies") || window.setting.get("cookies") == "false") {
-        $("body").prepend(`<div id="cookie_header" class="banner center"><span id="notice-text">this site uses cookies to store settings. By continuing to use the site you agree to the <a href="/terms">Terms of service</a></span><hr class="mobile"><button onclick="window.setting.set('cookies',true); $('#cookie_header').remove()" id="btn-dismiss" class="btn-yellow">dismiss</button></div>`)
-    }
+document.addEventListener("DOMContentLoaded", function () {
+    isLoggedIn()
+    request({
+        type: "GET",
+        url: "/api/admin/get_users"
+    }, function (data) {
+        if (!data.type && data.type != "error") {
+            document.documentElement.setAttribute("admin", "true")
+
+        }
+    })
 })
-
-/* handle uncought errors */
-window.onerror = (err) => {
-    window.popup("error",`${err}<br><a class="btn-red" href="https://stackoverflow.com/search?q=${err}">Stack overflow</a>`)
-}

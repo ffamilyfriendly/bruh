@@ -3,7 +3,10 @@ const app = express()
 const config = require("./config")
 const cs = require("express-session")
 const store = new cs.MemoryStore()
+
 const getFileList = require("./lib/loader")
+const log = require("./lib/helpers").log
+
 app.use(require("body-parser").urlencoded({ extended: true }))
 app.use(cs({
     secret: config.cookie_secret,
@@ -22,13 +25,10 @@ module.exports = {
 
 getFileList("./modules").forEach(m => {
     const mod = require(m)
-
     if (mod.enabled === false) {
-        console.log(`module "${m}" disabled`)
+        log(`module "${m}" disabled`)
     } else {
-        let load_text = `\nloaded module "${m}"`
-        load_text = "#".repeat(load_text.length) + load_text + `\n-type:${mod.type}`
-        console.log(load_text)
+        log(`loaded module "${m}"`)
         if (mod.type === "router") {
             app.use(mod.base_url, mod.router)
         } else if (mod.type === "modules") {
@@ -40,5 +40,12 @@ getFileList("./modules").forEach(m => {
 app.get("*", (req, res) => {
     res.sendFile(require("path").join(__dirname, "./front", "404.html"))
 })
+
+const shutdown = () => {
+    log("shutting down...","exit",true)
+    setTimeout(() => {process.exit(0)},1000) //allow time for writing to logfile
+}
+
+process.on("SIGINT",() => {shutdown()})
 
 app.listen(config.port)

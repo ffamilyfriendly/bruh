@@ -1,3 +1,10 @@
+# 1.2.0
+**added:**
+* basically revamped the whole thing and how it works
+* material design
+**removed:**
+* basically all of previus code lol
+
 # 1.0.6
 **added:**
 * auto-play for correctly formatted series (S01E01 and so on)

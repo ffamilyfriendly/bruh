@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/admin.js"></script>
+
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">
+    <style> 
+        #navbar {
+            border-right: 1px solid white;
+            height: 100vh;
+        }
+
+        .page {
+            display: none;
+        }
+        .page:target {
+            display: block !important;
+        }
+
+        #fields_warning, #collection_warning, #media_warning {
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="navbar" class="col-md-2 nav d-none d-md-block">
+                <li class="nav-item">
+                    <a class="nav-link" href="#users">Users</a>
+                    <a class="nav-link" href="#invites">Invites</a>
+                    <a class="nav-link" href="#collections">Categories</a>
+                    <a class="nav-link" href="#media">Media</a>
+                </li>
+            </nav>
+            <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
+                <div class="page" id="users">
+                    <h1 class="display-4">Manage users</h1>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Username</th>
+                          </tr>
+                        </thead>
+                        <tbody id="users_table">
+
+                        </tbody>
+                      </table>
+                </div>
+                <div class="page" id="invites">
+                    <h1 class="display-4">Manage invites</h1>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Uses</th>
+                          </tr>
+                        </thead>
+                        <tbody id="invites_table">
+
+                        </tbody>
+                      </table>
+                      <button type="button" data-toggle="modal" data-target="#new_invite" class="btn btn-primary">New</button>
+                </div>
+                <div class="page" id="collections">
+                    <h1 class="display-4">Manage collections</h1>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Parent</th>
+                          </tr>
+                        </thead>
+                        <tbody id="collections_table">
+
+                        </tbody>
+                      </table>
+                      <button type="button" data-toggle="modal" data-target="#new_collection" class="btn btn-primary">New</button>
+                </div>
+                <div class="page" id="media">
+                  <h1 class="display-4">Manage media</h1>
+                  <table class="table">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Parent</th>
+                        </tr>
+                      </thead>
+                      <tbody id="media_table">
+
+                      </tbody>
+                    </table>
+                    <button type="button" data-toggle="modal" data-target="#new_media" class="btn btn-primary">New</button>
+              </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- NEW INVITE -->
+    <div id="new_invite" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New invite</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="fields_warning" role="alert">required fields are empty.</div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="code-label">code</span>
+                    </div>
+                    <input id="invite_text" type="text" placeholder="code" class="form-control" aria-label="code-label" aria-describedby="code-label">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="uses-label">uses</span>
+                    </div>
+                    <input id="invite_uses" type="number" placeholder="1" class="form-control" aria-label="uses-label" aria-describedby="uses-label">
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button onclick="newInvite()" type="button" class="btn btn-primary">Create</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <!-- NEW COLLECTION -->
+    <div id="new_collection" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New category</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="collection_warning" role="alert">required fields are empty.</div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="name-label">name</span>
+                    </div>
+                    <input id="collection_name" type="text" placeholder="name" class="form-control" aria-label="name-label" aria-describedby="name-label">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="path-label">parent</span>
+                    </div>
+                    <input id="collection_path" type="text" placeholder="ur mum" class="form-control" aria-label="path-label" aria-describedby="path-label">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="img-label">image</span>
+                  </div>
+                  <input id="collection_image" type="text" placeholder="/media/something" class="form-control" aria-label="img-label" aria-describedby="img-label">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="path-desc">description</span>
+                </div>
+                <input id="collection_description" type="text" placeholder="ur mum" class="form-control" aria-label="path-desc" aria-describedby="path-desc">
+            </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button onclick="newCollection()" type="button" class="btn btn-primary">Create</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="new_media" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">New category</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" id="media_warning" role="alert">required fields are empty.</div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="name-label">name</span>
+                    </div>
+                    <input id="media_name" type="text" placeholder="name" class="form-control" aria-label="name-label" aria-describedby="name-label">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="path-label">parent</span>
+                    </div>
+                    <input id="media_parent" type="text" placeholder="ur mum" class="form-control" aria-label="path-label" aria-describedby="path-label">
+                </div>
+                <div class="input-group input-group-sm mb-3">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text" id="img-label">path</span>
+                  </div>
+                  <input id="media_path" type="text" placeholder="/media/something" class="form-control" aria-label="img-label" aria-describedby="img-label">
+              </div>
+              <div class="input-group input-group-sm mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="desce-label">description</span>
+                </div>
+                <input id="media_desc" type="text" placeholder="nice nice" class="form-control" aria-label="desce-label" aria-describedby="desce-label">
+            </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button onclick="newMedia()" type="button" class="btn btn-primary">Create</button>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+</html>

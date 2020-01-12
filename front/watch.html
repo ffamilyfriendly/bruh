@@ -1,50 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>watch</title>
-    <!-- framework -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="/static/css/main.css">
-    <link rel="stylesheet" href="/static/css/watch.css">
+    <title>Watch</title>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/watch.js"></script>
+    <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">
+    <style>
+    #mainPlayer {
+        width: 100%;
+    }
 
-    <!-- VIDEO.JS -->
-    <link href="https://unpkg.com/video.js@7/dist/video-js.min.css" rel="stylesheet" />
-    <script src="https://vjs.zencdn.net/7.5.5/video.js"></script>
+    #video_box:target #video_overlay {
+        display: block !important;
+    }
 
-
+    #video_overlay {
+        display: none;
+        position: absolute;
+        float:left;
+        background-color: rgba(0, 0, 0, 0.596);
+        padding: 10px;
+    }
+    </style>
 </head>
-
 <body>
-    <div id="loader" class="center">
-        <div class="centerDiv">
-            <h1 class="title">loading...</h1>
-            <div class="lds-ring">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
+    <div class="container">
+        <div id="video_box">
+            <div id="video_overlay">
+               <h1 class="display-4">Debug</h1>
+               <ul>
+                   <li><b>Source:</b><span id="source">test</span></li>
+                   <li><b>% done:</b><span id="buffer">test</span></li>
+               </ul>
+               <hr>
+               <a href="#" class="btn btn-secondary">close</a>
             </div>
+            <video id="mainPlayer" controls>
+                <b>Oops!</b> your broweser does not support the video tag
+            </video>
         </div>
+        <a href="#video_box" class="btn btn-primary">debug</a>
     </div>
-    <div id="info" class="container">
-        <!-- !!!WARNING!!! DO NOT COPY THE SRC FROM THE SOURCE TAG AS IT INCLUDES YOUR SESSION ID!!! -->
-        <h1 id="movie_title" class="title">TITLE</h1>
-        <h2><span class="green">category:</span> <span id="movie_category"></span></h2>
-        <h2><span class="green">uploaded:</span> <span id="movie_uploaded"></span></h2>
-        <button class="btn-green" onclick="skipto()">skip to last watched</button>
-    </div>
-    <div id="optionsmenu">
-        <ul>
-            <li><a onclick="debugMenu()" href="#">debug</a></li>
-        </ul>
-    </div>
-    <div id="notification-next" class="showin-10s"><h1>skipping to next episode in 10 seconds...</h1></div>
 </body>
-
 </html>

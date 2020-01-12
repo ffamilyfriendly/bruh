@@ -5,122 +5,80 @@ const h = require("../../lib/helpers")
 const db = require("./database").db
 const store = require("../../index").store //cookie store
 
-//get movies
-router.get("/get_movies", (req, res) => {
-    const category = req.query.category //category query is optional. if one is passed only movies from that category will be returned
-    const name = req.query.name
-    db.all(`SELECT * FROM movies WHERE level < ${req.session.user.level} ${category ? `AND category = "${h.sqlEscape(category)}"` : ""}${name ? `AND name = "${h.sqlEscape(name)}"` : ""}`, (err, rows) => {
-        if (err) return res.status(500).send({ type: "internal error", data: err })
-        else res.send(rows)
+//struct CREATE TABLE IF NOT EXISTS content (id TEXT PRIMARY KEY, parent TEXT, type TEXT, data TEXT)
+
+router.post("/admin/new_category",(req,res) => {
+    const { id, parent, image, description } = req.body
+    h.log(`creating category with id "${id}"`,"media")
+    const data = {
+        image:image||"https://i.ytimg.com/vi/OXpjl87Cy9A/hqdefault.jpg",
+        description:description
+    }
+    if (!h.important_params([id, parent], res)) return
+    db.run(`INSERT INTO content VALUES("${id}","${parent||"NOPARENT"}","category",'${JSON.stringify(data)}')`,(err) => {
+        if(err) return res.status(500).send({ type: "internal error", data: err }) 
+        else res.send({type:"created",data:"created category"})
     })
 })
 
-//get all categories. 
-router.get("/get_categories", (req, res) => {
-    db.all(`SELECT * FROM categories WHERE level < ${req.session.user.level}`, (err, rows) => {
-        if (err) return res.status(500).send({ type: "internal error", data: err })
-        else res.send(rows)
+router.post("/admin/new_media",(req,res) => {
+    const { id, name, path, image, parent, description } = req.body
+    if (!h.important_params([id, name, path], res)) return
+    h.log(`creating media with id "${id}"`,"media")
+    const data = {
+        image:image||"https://i.ytimg.com/vi/OXpjl87Cy9A/hqdefault.jpg",
+        path:path,
+        name:name,
+        description:description
+    }
+    db.run(`INSERT INTO content VALUES("${id}","${parent||"NOPARENT"}","media",'${JSON.stringify(data)}')`,(err) => {
+        if(err) return res.status(500).send({ type: "internal error", data: err }) 
+        else res.send({type:"created",data:"created media"})
     })
 })
 
-//send movie
+router.get("/media",(req,res) => {
+    const filter = req.query.filter
+    db.all(`SELECT * FROM content ${filter ? `WHERE parent = "${filter}"`:""}`,(err,rows) => {
+        res.send({type:"OK",data:rows})
+    })
+})
 
-/*
-this method now requires you to pass the session id. this is to allow airplay since it isnt working in earlier versions
-due to it getting blocked by the "not logged in filter". Hopefully this way the media is "publicly" availible as long as you have the link
-*/
-router.get("/movie/:session/:id", (req, res) => {
-    const { session, id } = req.params //id of movie
-    store.get(session, (err, sess) => {
-        if (!h.important_params([id, session, sess], res)) return
-        const user = sess.user
-        db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}" AND level < ${user.level}`, (err, row) => {
-            if (err) return res.status(500).send({ type: "internal error", data: err })
-            row = row[0] //this is a dumb way to do this but i cant get it to work otherwise
-            if (!row) return res.status(404).send({ type: "not found", data: "media is not found" })
-            res.sendFile(row.path)
+router.get("/media/:session/:id",(req,res) => {
+    const { session, id } = req.params
+    store.get(session,(err,sess) => {
+        if (!h.important_params([session, id, sess], res)) return
+        db.all(`SELECT * FROM content WHERE id = "${id}"`,(err,rows) => {
+            let row = rows[0]
+            row.data = JSON.parse(row.data)
+            if(row.type === "media" && row.data.path) {
+                try {
+                    res.sendFile(row.data.path)
+                } catch(err) {
+                    h.log(err,"FILE_ERROR")
+                }  
+            }
         })
     })
 })
 
-//get info about movie
-router.get("/info/:id", (req, res) => {
-    const id = req.params.id
-    db.all(`SELECT * FROM movies WHERE id = "${h.sqlEscape(id)}" AND level < ${req.session.user.level}`, (err, row) => {
-        if (err) return res.status(500).send({ type: "internal error", data: err })
-        row = row[0]
-        if (!row) return res.status(404).send({ type: "not found", data: "media is not found" })
-        res.send(row)
+router.post("/admin/new_invite",(req,res) => {
+    const { id, uses } = req.body
+    h.log(`creating invite with id "${id}"`,"media")
+    if (!h.important_params([id, uses], res)) return
+    db.run(`INSERT INTO invites VALUES("${id}",${uses})`,(err) => {
+        if(err) return res.status(500).send({ type: "internal error", data: err }) 
+        else res.send({type:"created",data:"created invite"})
     })
 })
 
-//this endpoint is EXTREMELY dangerous. It should be safe since user level is checked but i'll have to work on this
-router.post("/admin/save_changes", (req, res) => {
-    const { table, id, changes } = req.body
-    if (!h.important_params([table, id, changes], res)) return
-    //construct SQL query... this code is very bodged but itworks™️
-    let sql = `UPDATE ${table} SET `
-    const keys = Object.keys(changes)
-    for (let i = 0; i < keys.length; i++) {
-        let change = keys[i]
-        changes[change] = typeof changes[change] == "number" ? changes[change] : `"${changes[change]}"`
-        sql += `${change} = ${changes[change]}${keys[i + 1] ? "," : ""} ` //bodge... such a lovely word
-    }
-    sql += ` WHERE id = "${id}"`
-    db.all(sql, (err) => {
-        if (err) return res.status(500).send({ type: "internal error", data: err })
-        else res.status(200).send({ type: "OK", data: `updated "${table}" table` })
+router.get("/admin/get_invites", (req, res) => {
+    db.all("SELECT * FROM invites", (err, rows) => {
+        if (err) return res.status(500).send({ type: "internal error", data: "could not query users" })
+        else res.send(rows)
     })
 })
 
-router.post("/admin/remove", (req, res) => {
-    const { table, identifier } = req.body
-    if (!h.important_params([table, identifier], res)) return
-    const sql = `DELETE FROM ${table} WHERE id = "${identifier}"`
-    db.all(sql, (err) => {
-        console.log(err)
-        if (err) return res.status(500).send({ type: "internal error", data: err })
-        else res.status(200).send({ type: "OK", data: "deleted" })
-    })
-
-})
-
-router.get("/admin/get_content", (req, res) => {
-    let paths = []
-    for (let i = 0; i < conf.media.path.length; i++) {
-        paths.push(...require("../../lib/loader")(conf.media.path[i]))
-    }
-    res.send(paths)
-})
-
-//upload a movie
-router.post("/admin/upload", (req, res) => {
-    const { name, level, path, category } = req.body
-    if (!h.important_params([name, level, path, category], res)) return
-    const id = h.generate_id(2000) //generate id
-
-    const meta = {
-        uploaded: +new Date() //unix epoch
-    }
-
-    db.run(`INSERT INTO movies VALUES ("${id}","${name}","${category}","${path}",${level},'${JSON.stringify(meta)}')`, (err) => {
-        console.log(err)
-        if (err) return res.status(500).send({ type: "internal error", data: err });
-        else res.status(201).send({ type: "created", data: path })
-    })
-})
-
-//create a category
-router.post("/admin/new_category", (req, res) => {
-    const { name, level, image } = req.body
-    if (!h.important_params([name, level], res)) return
-    let media_path = image||"./front/assets/defualt.png"
-
-    db.run(`INSERT INTO categories VALUES ("${name}","${media_path}",${level})`, (err) => {
-        if (err) return res.status(500).send({ type: "internal error", data: err });
-        else res.status(201).send({ type: "created", data: media_path })
-    })
-})
 
 module.exports = {
     type: "router",
