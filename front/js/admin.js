@@ -51,7 +51,7 @@ function newCollection() {
     var name = document.getElementById("collection_name")
     var parent = document.getElementById("collection_path")
     var image = document.getElementById("collection_image")
-    var desc = document.getElementById("collection_desc")
+    var desc = document.getElementById("collection_description")
     var warning = document.getElementById("collection_warning")
 
     if(!name.value) {
