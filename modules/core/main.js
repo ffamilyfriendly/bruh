@@ -13,7 +13,7 @@ router.get("/invite", (req, res) => {
 //middleware to make sure user is logged in. 
 router.use((req, res, next) => {
     const exclude = ["/api/login", "/api/register"] //exclude endpoints used to log in
-    if (req.url.includes("/api/movie/")) return next() //this might cause issues... or not
+    if (req.url.includes("/api/media/")) return next() //this might cause issues... or not
     if (!req.session.user && !exclude.includes(req.url)) return res.send({type:"error",data:"you must be logged in"}) //if there is no user obj redirect to login page 
     else next() //if user object continue
 })
