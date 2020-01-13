@@ -17,7 +17,9 @@ function request(options, cb) {
         xhr.send(options.data)
         xhr.onreadystatechange = function() {
             if(window.debug) console.log(xhr.response)
-            if(xhr.readyState === 4) return cb(JSON.parse(xhr.response))
+            var returnObj = xhr.response
+            if(!options.plain) returnObj = JSON.parse(returnObj)
+            if(xhr.readyState === 4) return cb(returnObj)
         }
 }
 

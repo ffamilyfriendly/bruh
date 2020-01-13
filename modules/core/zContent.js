@@ -72,6 +72,15 @@ router.post("/admin/new_invite",(req,res) => {
     })
 })
 
+router.post("/admin/query_database",(req,res) => {
+    const sql = req.body.sql
+    if (!h.important_params([sql], res)) return
+    db.all(sql,(err,rows) => {
+        if(err) return res.send(err)
+        else res.send(rows)
+    })
+})
+
 router.get("/admin/get_invites", (req, res) => {
     db.all("SELECT * FROM invites", (err, rows) => {
         if (err) return res.status(500).send({ type: "internal error", data: "could not query users" })

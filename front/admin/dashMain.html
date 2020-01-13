@@ -42,6 +42,7 @@
                     <a class="nav-link" href="#invites">Invites</a>
                     <a class="nav-link" href="#collections">Categories</a>
                     <a class="nav-link" href="#media">Media</a>
+                    <a class="nav-link" href="#sql">Sql</a>
                 </li>
             </nav>
             <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
@@ -107,6 +108,18 @@
                     </table>
                     <button type="button" data-toggle="modal" data-target="#new_media" class="btn btn-primary">New</button>
               </div>
+              <div class="page" id="sql">
+                <h1 class="display-4">run sql query</h1>
+                <h4>output:</h4>
+                <code id="queryOutput">
+
+                </code>
+                <h4>sql query:</h4>
+                <textarea id="query">
+
+                </textarea>
+                <button onclick="runSql()" style="display: block;" type="button" class="btn btn-primary">Run</button>
+            </div>
             </main>
         </div>
     </div>

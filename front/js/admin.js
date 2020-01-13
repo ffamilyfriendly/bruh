@@ -47,6 +47,20 @@ function newMedia() {
     })
 }
 
+function runSql() {
+    var query = document.getElementById("query")
+    var output = document.getElementById("queryOutput")
+
+    request({
+        type:"POST",
+        url:"/api/admin/query_database",
+        data:parseData({sql:query.value}),
+        plain:true
+    }, function(data) {
+        output.innerText = data
+    })
+}
+
 function newCollection() {
     var name = document.getElementById("collection_name")
     var parent = document.getElementById("collection_path")
