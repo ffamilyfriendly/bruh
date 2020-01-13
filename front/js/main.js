@@ -54,7 +54,7 @@ function loadCat(id) {
                 e.style.width = "18rem"
                 if(cats[i].type === "category") {
                     e.innerHTML = `
-                    <a onclick="loadCat('${cats[i].id}')" href="#${cats[i].id}">
+                    <a onclick="loadCat('${cats[i].id}')" href="?navigation=${cats[i].id}">
                     <img src="${cats[i].data.image}" class="card-img-top" alt="NO image found">
                     <div class="card-body">
                       <h5 class="card-title">${cats[i].id}</h5>
@@ -84,7 +84,8 @@ function loadCat(id) {
 }
 
 function loadCollections() {
-    loadCat(window.location.hash.substring(1)||"NOPARENT")
+    var v = new URLSearchParams(window.location.search).get("navigation")
+    loadCat(v||"NOPARENT")
 }
 
 function isLoggedIn() {
