@@ -30,6 +30,17 @@
         #fields_warning, #collection_warning, #media_warning {
             display: none;
         }
+
+        #logList {
+          list-style: none;
+          padding: 0;
+        }
+
+        .filter-item {
+          margin-left: 20px;
+          border-left: 5px solid blue;
+          background-color: rgba(255, 255, 0, 0.144);
+        }
     </style>
 
 </head>
@@ -46,6 +57,19 @@
                 </li>
             </nav>
             <main class="col-md-9 ml-sm-auto col-lg-10 px-4">
+
+                <!-- MAIN OVERVIEW -->
+                <div class="page" id="dash">
+                  <h1 class="display-4">Main dash overview</h1>
+                  <h5>connected agents</h5>
+                  <ul id="agentList">
+                  </ul>
+                  <h5>logs</h5>
+                  <input id="filter" type="text"> <button onclick="filterLogs()" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path style="fill: white;" d="M1 0h22l-9 15.094v8.906l-4-3v-5.906z"/></svg></button>
+                  <ul id="logList">
+                  </ul>
+                </div>
+
                 <div class="page" id="users">
                     <h1 class="display-4">Manage users</h1>
                     <table class="table">
@@ -246,4 +270,9 @@
         </div>
       </div>
 </body>
+<script>
+$(document).ready(function() {
+  if(!window.location.hash) window.location = "#dash"
+})
+</script>
 </html>

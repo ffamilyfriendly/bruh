@@ -19,7 +19,7 @@ router.post("/login", (req, res) => {
         bcrypt.compare(password, row.password, (err, resu) => {
             if (err) { h.log(err,"ERROR"); return res.status(500).send({ type: "internal error", data: "could not compare passwords" }) }
             if (resu) {
-                req.session.user = { username: row.id, admin:Boolean(row.admin)} //set cookie session
+                req.session.user = { username: row.id, admin:Boolean(row.admin), activity:{}} //set cookie session
                 return res.status(200).send({ type: "logged in", data: "redirecting..." })
             } else {
                 h.log(`Visitor with IP ${req.ip} made attempt to log in to account with name "${username}"`,"CREDENTIALS")
@@ -88,6 +88,17 @@ router.get("/admin/get_users", (req, res) => {
     db.all("SELECT id, admin FROM users", (err, rows) => {
         if (err) return res.status(500).send({ type: "internal error", data: "could not query users" })
         else res.send(rows)
+    })
+})
+
+router.get("/admin/connected",(req,res) => {
+    res.send(require("../../index").store)
+})
+
+router.get("/admin/logs",(req,res) => {
+    require("fs").readFile("./logfile.txt",(err,data) => {
+        if(err) return res.send(err)
+        else res.send(data)
     })
 })
 

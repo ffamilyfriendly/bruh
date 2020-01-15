@@ -1,4 +1,4 @@
-window.debug = true
+window.debug = false
 
 function newInvite() {
     var text = document.getElementById("invite_text")
@@ -137,9 +137,79 @@ function collections_table() {
     })
 }
 
+function timeWhen(tm) {
+    var seconds = Math.floor((new Date() - tm) / 1000);
+
+    var interval = Math.floor(seconds / 31536000);
+  
+    if (interval > 1) {
+      return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+      return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+      return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+      return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
+}
+
+function prepareMain() {
+    var agentList = document.getElementById("agentList")
+    var lgList = document.getElementById("logList")
+    request({
+        type:"GET",
+        url:"/api/admin/connected"
+    },function(data) {
+        var keys = Object.keys(data.sessions)
+        for(var i = 0; i < keys.length; i++) {
+        var li = document.createElement("li")
+        var user = JSON.parse(data.sessions[keys[i]])
+        li.innerHTML = "<b>id: </b>"+keys[i]+" <b>Agent: </b>" + user.user.activity.agent + " <b>Media:</b> " + user.user.activity.media + " <b> When: </b>" + timeWhen(user.user.activity.time) + " ago"
+        agentList.append(li)
+        }
+    })
+
+    request({
+        type:"GET",
+        url:"/api/admin/logs",
+        plain:true
+    },function(data) {
+        var logList = data.split("\n")
+        for(var i = 0; i < logList.length; i++) {
+            var li = document.createElement("li")
+            li.innerHTML = "<code>" + logList[i] + "</code>"
+            lgList.append(li)
+        }
+    })
+}
+
+function filterLogs() {
+    var filter = document.getElementById("filter").value
+    var list = document.getElementById("logList")
+    for(var i = 0; i < list.childNodes.length; i++) {
+        var child = list.children[i]
+        if(child && child.innerHTML.includes(filter)) {
+            child.classList.add("filter-item")
+        } else if(child) {
+            child.classList.remove("filter-item")
+        }
+    }
+}
 
 document.addEventListener("DOMContentLoaded",function() {
     collections_table()
     invites_table()
     users_table()
+    prepareMain()
 })
