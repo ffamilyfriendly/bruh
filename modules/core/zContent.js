@@ -69,6 +69,36 @@ router.get("/media/:session/:id",(req,res) => {
     })
 })
 
+router.post("/register_watched",(req,res) => {
+    let { id, time } = req.body
+    time = Number(time)
+    if (!h.important_params([id, time], res)) return
+    if(typeof time != "number") return res.send({type:"Type mismatch",data:"time must be a number"})
+    const sql = `INSERT OR REPLACE INTO last_watched VALUES("${id+req.session.user.username}",${time})`
+    db.all(sql,(err) => {
+        if(err) return res.send({type:"err",data:err})
+        else return res.send({type:"OK",data:"registered last watched"})
+    })
+})
+
+router.post("/remove_watched",(req,res) => {
+    let id = req.body.id
+    if (!h.important_params([id], res)) return
+    db.all(`DELETE FROM last_watched WHERE id="${id+req.session.user.username}"`,(err) => {
+        if(err) return res.send({type:"err",data:err})
+        else res.send({type:"OK",data:"deleted"})
+    })
+})
+
+router.get("/hasWatched",(req,res) => {
+    const id = req.query.id
+    if (!h.important_params([id], res)) return
+    db.all(`SELECT * FROM last_watched WHERE id = "${id+req.session.user.username}"`,(err,rows) => {
+        if(err) return res.send({type:"error",data:err})
+        else res.send(rows)
+    })
+})
+
 router.post("/admin/new_invite",(req,res) => {
     const { id, uses } = req.body
     h.log(`creating invite with id "${id}"`,"media")
@@ -87,6 +117,7 @@ router.post("/admin/query_database",(req,res) => {
         else res.send(rows)
     })
 })
+
 
 router.get("/admin/get_invites", (req, res) => {
     db.all("SELECT * FROM invites", (err, rows) => {

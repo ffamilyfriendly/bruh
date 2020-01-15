@@ -49,5 +49,28 @@
         </div>
         <a href="#video_box" class="btn btn-primary">debug</a>
     </div>
+
+    <!-- MODAL -->
+    <div class="modal fade" id="lw" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Continue from last watched?</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <h6>You have watched this previously</h6>
+                <p><b>Saved time: </b><span id="last_watched">TIME_HERE</span> seconds</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="dissmissLast()">Reject</button>
+              <button onclick="continueFromLast()" type="button" class="btn btn-primary">Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
 </body>
 </html>

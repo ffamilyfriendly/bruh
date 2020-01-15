@@ -18,8 +18,9 @@ function request(options, cb) {
         xhr.onreadystatechange = function() {
             if(window.debug) console.log(xhr.response)
             var returnObj = xhr.response
+            if(returnObj === "") return
             if(!options.plain) returnObj = JSON.parse(returnObj)
-            if(xhr.readyState === 4) return cb(returnObj)
+            if(xhr.readyState === 4 && cb) return cb(returnObj)
         }
 }
 
@@ -180,7 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, function (data) {
         if (!data.type && data.type != "error") {
             document.documentElement.setAttribute("admin", "true")
-
         }
     })
 })
