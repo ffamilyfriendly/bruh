@@ -91,10 +91,6 @@ router.get("/admin/get_users", (req, res) => {
     })
 })
 
-router.get("/admin/connected",(req,res) => {
-    res.send(require("../../index").store)
-})
-
 router.get("/admin/logs",(req,res) => {
     require("fs").readFile("./logfile.txt",(err,data) => {
         if(err) return res.send(err)

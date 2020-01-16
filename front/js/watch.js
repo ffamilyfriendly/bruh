@@ -23,12 +23,12 @@ function updateLastWatched() {
     ticker++
 }
 
-function continueFromLast() {
+function continueFromLast(e) {
     player.currentTime = lastWatched
     $('#lw').modal("hide")
 }
 
-function dissmissLast() {
+function dissmissLast(e) {
     request({
         type:"POST",
         url:"/api/remove_watched",
@@ -46,13 +46,13 @@ function hasLastWatched() {
             lastWatched = data[0].location
             document.getElementById("last_watched").innerText = data[0].location
             $('#lw').modal()
+            player.removeEventListener("play",arguments.calee)
         }
     })
 }
 
 document.addEventListener("DOMContentLoaded",function() {
     player = document.getElementById("mainPlayer")
-    hasLastWatched()
     if(!v) return
     request({
         type:"GET",
@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded",function() {
             source.type = "video/mp4"
             source.src = "/api/media/"+data.data+"/"+v
             player.append(source)
+            player.addEventListener("play",hasLastWatched)
             player.addEventListener("timeupdate",updateLastWatched)
             updateDebug()
             setInterval(updateDebug,5000)

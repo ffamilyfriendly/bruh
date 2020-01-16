@@ -48,13 +48,6 @@ router.get("/media/:session/:id",(req,res) => {
     const { session, id } = req.params
     store.get(session,(err,sess) => {
         if (!h.important_params([session, id, sess], res)) return
-        if(req.session.user) {
-            req.session.user.activity = {
-                agent:req.get("User-Agent"),
-                media:id,
-                time: new Date().getTime()
-            }
-        }
         db.all(`SELECT * FROM content WHERE id = "${id}"`,(err,rows) => {
             let row = rows[0]
             row.data = JSON.parse(row.data)
