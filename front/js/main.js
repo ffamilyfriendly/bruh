@@ -50,7 +50,7 @@ function loadCat(id) {
                 const cat = data.data[i]
 
                 //if any supported property is "auto" and the meta plugin is enabled fetch metadata from tmdb
-                if([cat.image,cat.childData[0].description].includes("auto") && window.plugins.metadata && window.plugins.metadata.enabled) {
+                if(cat.childData && [cat.image,cat.childData[0].description].includes("auto") && window.plugins.metadata && window.plugins.metadata.enabled) {
                     request({
                         type:"GET",
                         url:`/api/meta/${cat.id}`
