@@ -60,7 +60,7 @@ function loadCat(id) {
                         buildMedia(cat)
                     })
                 } else {
-                    if(!cat.childData) cat.childData = {description:"something went wrong..."}
+                    if(!cat.childData) cat.childData =[{description:"something went wrong..."}]
                     buildMedia(cat)
                 }                
             }
