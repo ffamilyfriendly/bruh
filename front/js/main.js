@@ -24,71 +24,52 @@ function request(options, cb) {
         }
 }
 
-
-/*
-<div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-*/
+function buildMedia(cat) {
+    const html = `
+        <div class="card category">
+            <a ${cat.type === "category" ? `href="?navigation=${cat.id}` : `href="watch?v=${cat.id}" target="blank"`}">
+            <img src="${cat.image}" class="card-img-top" alt="NO image found">
+            <div class="card-body">
+            <h5 class="card-title">${cat.displayname}</h5>
+            <p class="card-text">${cat.childData[0].description.substring(0,100)+"..."}</p>
+            </div>
+            </a>
+        </div>
+    `
+    $("#media").append(html)
+}
 
 function loadCat(id) {
     if(!id) return
-    console.log(id)
-    var m = document.getElementById("categories")
-    var f = document.getElementById("media")
-    if(!m) return
-    m.innerHTML = ""
     request({
         type:"GET",
-        url:"/api/media?filter="+id
+        url:"/api/media?filter="+id+"&context=true"
     },function(data) {
         if(data.type === "OK") {
-            console.log(data)
-            var cats = data.data
-            for(var i = 0; i < cats.length; i++) {
-                cats[i].data = JSON.parse(cats[i].data)
-                var e = document.createElement("div")
-                e.classList = "card category"
-                e.style.width = "18rem"
-                if(cats[i].type === "category") {
-                    e.innerHTML = `
-                    <a onclick="loadCat('${cats[i].id}')" href="?navigation=${cats[i].id}">
-                    <img src="${cats[i].data.image}" class="card-img-top" alt="NO image found">
-                    <div class="card-body">
-                      <h5 class="card-title">${cats[i].id}</h5>
-                      <p class="card-text">${cats[i].data.description||"No description"}</p>
-                    </div>
-                    </a>
-                    `
-                    m.append(e)
+            for(var i = 0; i < data.data.length; i++) {
+                const cat = data.data[i]
+
+                //if any supported property is "auto" and the meta plugin is enabled fetch metadata from tmdb
+                if([cat.image,cat.childData[0].description].includes("auto") && window.plugins.metadata && window.plugins.metadata.enabled) {
+                    request({
+                        type:"GET",
+                        url:`/api/meta/${cat.id}`
+                    }, (meta) => {
+                        cat.image = cat.image === "auto" ? `https://image.tmdb.org/t/p/w300${meta.poster_path}` : cat.image
+                        cat.childData[0].description = cat.childData[0].description === "auto" ? meta.overview : cat.childData[0].description
+                        buildMedia(cat)
+                    })
                 } else {
-                    e.innerHTML = `
-                    <a href="/watch?v=${cats[i].id}">
-                    <img src="${cats[i].data.image}" class="card-img-top" alt="NO image found">
-                    <div class="card-body">
-                      <h5 class="card-title">${cats[i].data.name||"No name"}</h5>
-                      <p class="card-text">${cats[i].data.description||"No description"}</p>
-                    </div>
-                    </a>
-                    `
-                    f.append(e)
-                }
-                
+                    buildMedia(cat)
+                }                
             }
         }
     })
-
-
 }
 
 function loadCollections() {
     var v = new URLSearchParams(window.location.search).get("navigation")
-    loadCat(v||"NOPARENT")
+    loadCat(v||"root")
 }
 
 function isLoggedIn() {
@@ -128,51 +109,6 @@ function login() {
     })
 }
 
-/*
-const fs = require("fs")
-module.exports = dir => {
-    let res = []
-    fs.readdirSync(dir).forEach(file => {
-        const fileDir = `${dir}/${file}`
-        const stat = fs.statSync(fileDir)
-
-        if (stat && stat.isDirectory())
-            res = [...res, ...module.exports(fileDir)]
-        else res.push(fileDir)
-    })
-
-    return res
-
-}
-*/
-
-function parsePaths(data) {
-    var arr = data.split("/")
-    for (let i = 0; i < arr.length; i++) {
-        let item = arr[i]
-        if (!collection[item] && arr[i + 1]) collection[item] = {}
-        else { collection[arr[i - 1]] = item }
-    }
-}
-
-function collections() {
-    //<li class="tab col s3"><a href="#test1">Test 1</a></li>
-    var cList = document.getElementById("collections")
-    if (!cList) return
-    request({
-        type: "GET",
-        url: "/api/collections"
-    }, function (data) {
-        for (var i = 0; i < data.length; i++) {
-            var item = data[i]
-            var cat = document.createElement("li")
-            cat.classList = "tab col s3"
-            cat.innerHTML = "<a onclick='loadCat(\"" + item.id + "\")' href='#" + item.id + "'>" + item.id + "</a>"
-            cList.append(cat)
-        }
-    })
-}
-
 document.addEventListener("DOMContentLoaded", function () {
     isLoggedIn()
     request({
@@ -181,6 +117,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }, function (data) {
         if (!data.type && data.type != "error") {
             document.documentElement.setAttribute("admin", "true")
+        }
+    })
+
+    //check plugin-list
+    request({
+        type:"GET",
+        url:"/plugins",
+        plain:true
+    }, (data) => {
+        window.plugins = {}
+        data = JSON.parse(data)
+        for(let i = 0; i < data.length; i++) {
+            window.plugins[data[i].name] = data[i]
         }
     })
 })

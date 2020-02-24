@@ -1,3 +1,9 @@
+# 2.0.0
+**added:**
+* basically refractored all back-end code
+* plugin support
+* metadata plugin
+
 # 1.2.0
 **added:**
 * basically revamped the whole thing and how it works

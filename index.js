@@ -3,9 +3,8 @@ const app = express()
 const config = require("./config")
 const cs = require("express-session")
 const store = new cs.MemoryStore()
-
 const getFileList = require("./lib/loader")
-const log = require("./lib/helpers").log
+
 
 app.use(require("body-parser").urlencoded({ extended: true }))
 app.use(cs({
@@ -19,16 +18,27 @@ app.use(cs({
 }))
 app.use("/static", express.static("front"))
 
+let plugins = []
+
 module.exports = {
-    store: store
+    store: store,
+    plugins:plugins
 }
 
 getFileList("./modules").forEach(m => {
     const mod = require(m)
+    if(!mod.meta) mod.meta = {name:"this plugin has no name",description:"this plugin has no description",readme:"this plugin has no readme file"}
+    plugins.push({
+        enabled: !(mod.enabled === false),
+        name: mod.meta.name || "this plugin has no name",
+        description: mod.meta.description||"this plugin has no description",
+        readme:mod.meta.readme||"this plugin has no readme file",
+        type:mod.type
+    })
+
     if (mod.enabled === false) {
-        log(`module "${m}" disabled`)
+        //do something here possibly idk
     } else {
-        log(`loaded module "${m}"`)
         if (mod.type === "router") {
             app.use(mod.base_url, mod.router)
         } else if (mod.type === "modules") {
@@ -40,12 +50,5 @@ getFileList("./modules").forEach(m => {
 app.get("*", (req, res) => {
     res.sendFile(require("path").join(__dirname, "./front", "404.html"))
 })
-
-const shutdown = () => {
-    log("shutting down...","exit",true)
-    setTimeout(() => {process.exit(0)},1000) //allow time for writing to logfile
-}
-
-process.on("SIGINT",() => {shutdown()})
 
 app.listen(config.port)

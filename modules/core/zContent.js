@@ -1,46 +1,66 @@
 const router = require("express").Router()
-const fs = require("fs")
-const conf = require("../../config")
 const h = require("../../lib/helpers")
 const db = require("./database").db
 const store = require("../../index").store //cookie store
 
-//struct CREATE TABLE IF NOT EXISTS content (id TEXT PRIMARY KEY, parent TEXT, type TEXT, data TEXT)
 
 router.post("/admin/new_category",(req,res) => {
-    const { id, parent, image, description } = req.body
-    h.log(`creating category with id "${id}"`,"media")
-    const data = {
-        image:image||"https://i.ytimg.com/vi/OXpjl87Cy9A/hqdefault.jpg",
-        description:description
-    }
-    if (!h.important_params([id, parent], res)) return
-    db.run(`INSERT INTO content VALUES("${id}","${parent||"NOPARENT"}","category",'${JSON.stringify(data)}')`,(err) => {
+    const { parent, name, image, description } = req.body
+    const id = h.generate_id(2000)
+    if (!h.important_params([id, name, parent], res)) return
+    db.run(`INSERT INTO content VALUES("${id}","${name}","${image||"https://i.ytimg.com/vi/OXpjl87Cy9A/hqdefault.jpg"}","${parent}","category","${id}");`,(err) => {
+        db.run(`INSERT INTO category VALUES("${id}","${description}")`)
         if(err) return res.status(500).send({ type: "internal error", data: err }) 
         else res.send({type:"created",data:"created category"})
+        h.log("category_created",`created category with id '${id}'`)
     })
 })
 
+router.patch("/admin/update_category",(req,res) => {
+    const {parent, name, image, description, id} = req.body
+    if (!h.important_params([id, name, parent, image, description], res)) return
+    db.all(`UPDATE content SET displayname = "${name}", image = "${image}", parent = "${parent}" WHERE id = "${id}"`)
+    db.all(`UPDATE category SET description = "${description}" WHERE id = "${id}"`)
+    res.send({type:"updated",data:"updated things"})
+})
+
+//CREATE TABLE IF NOT EXISTS content (id TEXT PRIMARY KEY,displayname TEXT, image TEXT, parent TEXT, type TEXT, child TEXT)
+//CREATE TABLE IF NOT EXISTS media (id TEXT, path TEXT, description TEXT)
+
 router.post("/admin/new_media",(req,res) => {
-    const { id, name, path, image, parent, description } = req.body
-    if (!h.important_params([id, name, path], res)) return
-    h.log(`creating media with id "${id}"`,"media")
-    const data = {
-        image:image||"https://i.ytimg.com/vi/OXpjl87Cy9A/hqdefault.jpg",
-        path:path,
-        name:name,
-        description:description
-    }
-    db.run(`INSERT INTO content VALUES("${id}","${parent||"NOPARENT"}","media",'${JSON.stringify(data)}')`,(err) => {
+    const {name, path, image, parent, description } = req.body
+    const id = h.generate_id(20000)
+    if (!h.important_params([id, name, image, parent, description, path], res)) return
+    h.log("media_created",`created media with id '${id}'`)
+
+    db.run(`INSERT INTO content VALUES("${id}","${name}","${image}",'${parent}',"media","${id}")`,(err) => {
+        db.run(`INSERT INTO media VALUES("${id}","${path}","${description}")`)
         if(err) return res.status(500).send({ type: "internal error", data: err }) 
         else res.send({type:"created",data:"created media"})
     })
 })
 
+router.patch("/admin/update_media",(req,res) => {
+    const {parent, name, image, description, path, id} = req.body
+    if (!h.important_params([id, name, parent, image, path, description], res)) return
+    db.all(`UPDATE content SET displayname = "${name}", image = "${image}", parent = "${parent}" WHERE id = "${id}"`)
+    db.all(`UPDATE media SET description = "${description}", path = "${path}" WHERE id = "${id}"`)
+    res.send({type:"updated",data:"updated things"})
+})
+
 router.get("/media",(req,res) => {
-    const filter = req.query.filter
+    const {filter, context} = req.query
     db.all(`SELECT * FROM content ${filter ? `WHERE parent = "${filter}"`:""}`,(err,rows) => {
-        res.send({type:"OK",data:rows})
+        if(context) {
+            for(let i = 0; i < rows.length; i++) {
+                db.all(`SELECT * FROM ${rows[i].type} WHERE id = "${rows[i].id}"`,(e,_rows) => {
+                    rows[i].childData = _rows
+                    if(i == rows.length-1) return res.send({type:"OK",data:rows})
+                })
+            }
+        } else {
+            res.send({type:"OK",data:rows})
+        }
     })
 })
 
@@ -48,15 +68,16 @@ router.get("/media/:session/:id",(req,res) => {
     const { session, id } = req.params
     store.get(session,(err,sess) => {
         if (!h.important_params([session, id, sess], res)) return
-        db.all(`SELECT * FROM content WHERE id = "${id}"`,(err,rows) => {
+        db.all(`SELECT * FROM media WHERE id = "${id}"`,(err,rows) => {
             let row = rows[0]
-            row.data = JSON.parse(row.data)
-            if(row.type === "media" && row.data.path) {
+            if(row && row.path) {
                 try {
-                    res.sendFile(row.data.path)
+                    res.sendFile(row.path)
                 } catch(err) {
                     h.log(err,"FILE_ERROR")
                 }  
+            } else {
+                res.status(404).send("not found")
             }
         })
     })
@@ -94,23 +115,13 @@ router.get("/hasWatched",(req,res) => {
 
 router.post("/admin/new_invite",(req,res) => {
     const { id, uses } = req.body
-    h.log(`creating invite with id "${id}"`,"media")
+    h.log(`creating invite with id '${id}'`,"media")
     if (!h.important_params([id, uses], res)) return
     db.run(`INSERT INTO invites VALUES("${id}",${uses})`,(err) => {
         if(err) return res.status(500).send({ type: "internal error", data: err }) 
         else res.send({type:"created",data:"created invite"})
     })
 })
-
-router.post("/admin/query_database",(req,res) => {
-    const sql = req.body.sql
-    if (!h.important_params([sql], res)) return
-    db.all(sql,(err,rows) => {
-        if(err) return res.send(err)
-        else res.send(rows)
-    })
-})
-
 
 router.get("/admin/get_invites", (req, res) => {
     db.all("SELECT * FROM invites", (err, rows) => {
@@ -123,5 +134,9 @@ router.get("/admin/get_invites", (req, res) => {
 module.exports = {
     type: "router",
     base_url: "/api/",
-    router: router
+    router: router,
+    meta: {
+        name:"core.content",
+        description:"manages serving and creating of the content"
+    }
 }

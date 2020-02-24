@@ -9,6 +9,10 @@ router.get("/invite", (req, res) => {
     res.sendFile(path.join(__dirname, "../../front/", "invite.html"))
 })
 
+router.get("/plugins",(req,res) => {
+    res.send(require("../../index").plugins)
+})
+
 
 //middleware to make sure user is logged in. 
 router.use((req, res, next) => {
@@ -23,12 +27,23 @@ router.get("/admin", (req, res) => {
     res.sendFile(path.join(__dirname, "../../front/admin", "dashMain.html"))
 })
 
+router.get("/admin/:type", (req, res) => {
+    if (!req.session.user || !req.session.user.admin) return res.status(403).send({ type: "unauthorised", data: "user cookie session does not exist or user level is less then 100" })
+    res.sendFile(path.join(__dirname, "../../front/admin",`${req.params.type}.html`))
+})
+
 router.get("/watch", (req, res) => {
     res.sendFile(path.join(__dirname, "../../front", "watch.html"))
 })
 
+
+
 module.exports = {
     type: "router",
     base_url: "/",
-    router: router
+    router: router,
+    meta: {
+        name:"core.main",
+        description:"serves the html-files"
+    }
 }

@@ -15,14 +15,13 @@ router.post("/login", (req, res) => {
     db.all(`SELECT * FROM users WHERE id="${h.sqlEscape(username)}"`, (err, row) => {
         if (!row[0]) return res.status(401).send({ type: "credentials", data: "wrong username/password" })
         row = row[0]
-        if (err) { h.log(err,"ERROR"); return res.status(500).send({ type: "internal error", data: "could not fetch user data" }) }
+        if (err) { console.log(err); return res.status(500).send({ type: "internal error", data: "could not fetch user data" }) }
         bcrypt.compare(password, row.password, (err, resu) => {
-            if (err) { h.log(err,"ERROR"); return res.status(500).send({ type: "internal error", data: "could not compare passwords" }) }
+            if (err) { console.log(err); return res.status(500).send({ type: "internal error", data: "could not compare passwords" }) }
             if (resu) {
                 req.session.user = { username: row.id, admin:Boolean(row.admin), activity:{}} //set cookie session
                 return res.status(200).send({ type: "logged in", data: "redirecting..." })
             } else {
-                h.log(`Visitor with IP ${req.ip} made attempt to log in to account with name "${username}"`,"CREDENTIALS")
                 return res.status(401).send({ type: "credentials", data: "wrong username/password" })
             }
         })
@@ -36,11 +35,12 @@ router.post("/register", (req, res) => {
     db.all(`SELECT * FROM invites WHERE id="${invite}"`,(err,data) => {
         if(!data[0] || data[0].uses <= 0) return res.send({type:"error",data:"no such invite"})
         bcrypt.genSalt(saltRounds, (err, salt) => {
-            if (err) { h.log(err,"ERROR"); return res.status(500).send({ type: "internal error", data: "could not generate salt" }) }
+            if (err) { console.log(err); return res.status(500).send({ type: "internal error", data: "could not generate salt" }) }
             bcrypt.hash(password, salt, (err, hash) => {
-                if (err) { h.log(err,"ERROR"); return res.status(500).send({ type: "internal error", data: "could not generate hash" }) }
+                if (err) { console.log(err); return res.status(500).send({ type: "internal error", data: "could not generate hash" }) }
                 db.run(`INSERT INTO users VALUES("${h.sqlEscape(username)}","${hash}",0)`, (err) => {
                     db.all(`UPDATE invites SET uses = uses - 1 WHERE id = "${invite}"`);
+                    h.log("user_created",`new user '${username}' registered!`)
                     if (err) { return res.status(500).send({ type: "internal error", data: "could not save user" }) }
                     else return res.status(201).send({ type: "created", data: "user created! logging in..." })
                 })
@@ -76,9 +76,10 @@ router.use("/admin", (req, res, next) => {
 })
 
 router.delete("/admin/delete",(req,res) => {
-    const {id,type} = req.body
-    if (!h.important_params([id,type], res)) return
+    const {id, type} = req.body
+    if (!h.important_params([id, type], res)) return
     db.all(`DELETE FROM ${type} WHERE id = "${id}"`,(err) => {
+        h.log("data_deleted",`data with id '${id}' deleted!`)
         if(err) return res.send({type:"error",data:err})
         else return res.send({type:"deleted",data:"user deleted"})
     })
@@ -92,14 +93,17 @@ router.get("/admin/get_users", (req, res) => {
 })
 
 router.get("/admin/logs",(req,res) => {
-    require("fs").readFile("./logfile.txt",(err,data) => {
-        if(err) return res.send(err)
-        else res.send(data)
+    db.run("SELECT * FROM audit",(e,data) => {
+        res.send(data)
     })
 })
 
 module.exports = {
     type: "router",
     base_url: "/api/",
-    router: router
+    router: router,
+    meta: {
+        name:"core.user_api",
+        description:"handles the users"
+    }
 }

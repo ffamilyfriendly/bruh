@@ -23,6 +23,23 @@ function updateLastWatched() {
     ticker++
 }
 
+function getMeta(id) {
+    if(window.plugins.metadata && window.plugins.metadata.enabled) {
+        $("#metabox").show()
+    request({
+        type:"GET",
+        url:`/api/meta/${id}`
+    },(data) => {
+        console.log(data)
+        $("#movie_poster").attr("src",`https://image.tmdb.org/t/p/w300/${data.poster_path}`)
+        $("#movie_title").text(data.original_title)
+        $("#movie_description").text(data.overview)
+        $("#movie_release").text(data.release_date)
+        $("#movie_rating").text(data.vote_average)
+    })
+}
+}
+
 function continueFromLast(e) {
     player.currentTime = lastWatched
     $('#lw').modal("hide")
@@ -51,6 +68,7 @@ function hasLastWatched() {
     })
 }
 
+
 document.addEventListener("DOMContentLoaded",function() {
     player = document.getElementById("mainPlayer")
     if(!v) return
@@ -67,6 +85,8 @@ document.addEventListener("DOMContentLoaded",function() {
             player.addEventListener("timeupdate",updateLastWatched)
             updateDebug()
             setInterval(updateDebug,5000)
+
+            setTimeout(() => {getMeta(v)},500) //this is a very bad way to do it but wait 1s/2 to let main script fetch plugin list
         }
     })
 })
