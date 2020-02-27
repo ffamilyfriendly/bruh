@@ -1,3 +1,8 @@
+# 2.0.1
+**added:**
+* search function
+basically this push simply fixed a few bugs
+
 # 2.0.0
 **added:**
 * basically refractored all back-end code

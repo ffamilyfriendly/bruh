@@ -4,6 +4,10 @@ const fs = require("fs")
 const db = require("../core/database").db
 const request = require("request")
 
+/*  This endpoint gets any metadata for the requested title.
+* Metadata is cached in a folder but if no metadata is found the server will request the metadata
+* from themoviedb
+*/
 router.get("/meta/:id",(req,res) => {
     if(fs.existsSync(`${conf.metadata.path}/meta.${req.params.id}.json`)) {
         //file exists
@@ -15,8 +19,17 @@ router.get("/meta/:id",(req,res) => {
                 if(!movie) return res.status(404).send("movie not found")
                 request(`https://api.themoviedb.org/3/search/multi?query=${movie.displayname}&api_key=${conf.metadata.api_key}`,(e, response, body) => {
                     const answer = JSON.parse(body)
+
+                    //filter away any persons
+                    answer.results = answer.results.filter(m => m.media_type !== "person")
+
+                    //sort by vote count
                     answer.results = answer.results.sort((a, b) => b.vote_count - a.vote_count)
+
+                    //write the metadata to the cache file
                     fs.writeFileSync(`${conf.metadata.path}/meta.${req.params.id}.json`,JSON.stringify(answer.results[0]))
+
+                    //send the metadata
                     res.json(answer.results[0])
                 })
             } else res.status(404).send({type:"not found",data:"meta not found"})
@@ -25,7 +38,7 @@ router.get("/meta/:id",(req,res) => {
 })
 
 module.exports = {
-    type: "router",
+    type: "router", 
     enabled:true,
     base_url: "/api/",
     router: router,
