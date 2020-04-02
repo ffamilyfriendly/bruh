@@ -62,3 +62,25 @@ html[admin="true"] .admin {
 .hide {
     display: none;
 }
+
+.category_hero {
+  background-repeat:no-repeat;
+  background-position: center center;
+  color: white;
+}
+
+.category_hero div {
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.534);
+}
+
+@media only screen and (max-width: 600px) {
+  .category_hero h1 {
+    font-size: 20px;
+  }
+
+  .category_hero div {
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.534);
+  }
+}

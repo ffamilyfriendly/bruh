@@ -18,19 +18,23 @@ router.get("/meta/:id",(req,res) => {
                 const movie = rows[0]
                 if(!movie) return res.status(404).send("movie not found")
                 request(`https://api.themoviedb.org/3/search/multi?query=${movie.displayname}&api_key=${conf.metadata.api_key}`,(e, response, body) => {
-                    const answer = JSON.parse(body)
+                    if(body) {
+                        const answer = JSON.parse(body)
 
-                    //filter away any persons
-                    answer.results = answer.results.filter(m => m.media_type !== "person")
+                        //filter away any persons
+                        answer.results = answer.results.filter(m => m.media_type !== "person")
 
-                    //sort by vote count
-                    answer.results = answer.results.sort((a, b) => b.vote_count - a.vote_count)
+                        //sort by vote count
+                        answer.results = answer.results.sort((a, b) => b.vote_count - a.vote_count)
 
-                    //write the metadata to the cache file
-                    fs.writeFileSync(`${conf.metadata.path}/meta.${req.params.id}.json`,JSON.stringify(answer.results[0]))
+                        //write the metadata to the cache file
+                        fs.writeFileSync(`${conf.metadata.path}/meta.${req.params.id}.json`,JSON.stringify(answer.results[0]))
 
-                    //send the metadata
-                    res.json(answer.results[0])
+                        //send the metadata
+                        res.json(answer.results[0])
+                    } else {
+                        res.status(404).send({type:"not found",data:"meta not found"})
+                    }
                 })
             } else res.status(404).send({type:"not found",data:"meta not found"})
         })

@@ -1,3 +1,4 @@
+
 function buildMedia(cat) {
     const html = `
         <div class="card category">
@@ -13,6 +14,29 @@ function buildMedia(cat) {
     $("#media").append(html)
 }
 
+function buildCatMeta(id) {
+    request({
+        type:"GET",
+        url:`/api/meta/${id}`
+    }, (data) => {
+        if(!data || data === "nothing found" || data.type === "not found") return
+        else {
+            const html = `
+            <div style="background-image: url(https://image.tmdb.org/t/p/w1920_and_h800_multi_faces${data.backdrop_path});" class="category_hero">
+                <div>
+                <h1>${data.original_title}</h1>
+                <p>${data.overview}</p>
+                </div>
+            </div>
+            `
+            console.log(data)
+            $("#media").append(html)
+        }
+    })
+}
+
+//https://image.tmdb.org/t/p/w1920_and_h800_multi_faces/
+
 function loadCat(id) {
     if(!id) return
     request({
@@ -20,6 +44,7 @@ function loadCat(id) {
         url:"/api/media?filter="+id+"&context=true"
     },function(data) {
         if(data.type === "OK") {
+            if(window.plugins.metadata && window.plugins.metadata.enabled) buildCatMeta(id)
             for(var i = 0; i < data.data.length; i++) {
                 const cat = data.data[i]
                 log(cat.id,"fetching content data")

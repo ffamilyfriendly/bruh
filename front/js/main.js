@@ -26,7 +26,11 @@ function request(options, cb) {
             if(window.debug) console.log(xhr.response)
             var returnObj = xhr.response
             if(returnObj === "") return
-            if(!options.plain) returnObj = JSON.parse(returnObj)
+            try {
+                if(!options.plain) returnObj = JSON.parse(returnObj)
+            } catch(err) {
+                if(err) console.log(returnObj)
+            }
             if(xhr.readyState === 4 && cb) return cb(returnObj)
         }
 }
