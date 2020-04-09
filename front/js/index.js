@@ -30,7 +30,7 @@ function buildCatMeta(id) {
             </div>
             `
             console.log(data)
-            $("#media").append(html)
+            $("#metaview").append(html)
         }
     })
 }
