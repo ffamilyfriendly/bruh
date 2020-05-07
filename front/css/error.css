@@ -1,0 +1,7 @@
+.ePage {
+    display: none;
+}
+
+.ePage:target {
+    display: block;
+}

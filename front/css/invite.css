@@ -1,0 +1,11 @@
+#main_form * {
+    margin: 5px;
+}
+
+#mainContainer {
+    padding: 6px;
+}
+
+#joined {
+    display: none;
+}

@@ -1,100 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/index.js"></script>
-    
-    <!-- bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/css/common.css" crossorigin="anonymous">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Bruh login</title>
+       <!-- bootstrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://bootswatch.com/4/cyborg/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/index.css">
+  <script src="/static/js/index.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">Bruh</a>
-      <ul class="nav justify-content-end">
-        <li class="nav-item not-user">
-          <button id="loginbtn" type="button" class="btn btn-primary" data-toggle="modal" data-target="#login_modal">Login</button>
-        </li>
-        <li class="nav-item user">
-          <a href="/api/logout" type="button" class="btn btn-primary" >Log out</a>
-        </li>
-        <li class="nav-item">
-          <a type="button" class="btn btn-primary admin" href="/admin">Admin</a>
-        </li>
-        <li class="nav-item">
-          <div class="nav-divider"></div>
-        </li>
-        <li class="nav-item">
-          <div class="form-inline my-2 my-lg-0">
-            <input id="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button onclick="searchTitles()" class="btn btn-outline-success my-2 my-sm-0">Search</button>
-          </div>
-        </li>
-      </ul>
-    </nav>
-
-
-    <!-- MAIN -->
-    <div class="alert alert-danger not-user" role="alert"><b>not logged in</b></div>
-    <div id="searchRes" class="hide">
-      <h6>Results for: <code id="query">t</code></h6>
-      <ul id="results">
-        <li>e</li>
-      </ul><br>
-      <small>Total results: <span id="query_total">t</span></small>
+  <div id="login_container">
+    <div id="loggedin_success" class="alert alert-success" role="alert">
+      Logged in! Redirecting...
     </div>
-    <div class="container">
-      <div id="media">
-        <div id="metaview">
-
-        </div>
-      </div>
+    <div id="loggedin_error" class="alert alert-danger" role="alert">
+      Credentials incorrect. 
     </div>
-    </div>
-
-    <!-- MODALS -->
-      <div class="modal fade" id="login_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Login</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div style="display: none;" class="alert alert-danger" id="login_warning" role="alert">
-                ALERT_TEXT
-              </div>
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="Username">Username</span>
-                </div>
-                <input type="text" id="username" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="Username">
-              </div>
-
-              <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="Password">Password</span>
-                </div>
-                <input type="password" id="password" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="Password">
-              </div>
-
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button onclick="login()" type="button" class="btn btn-primary">Login</button>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="bg-secondary rounded" id="login_pad">
+    <h3>Login</h3>
+    <input type="text" id="username" name="login" placeholder="username">
+    <input type="password" id="password" name="login" placeholder="password">
+    <button onclick="login()" class="btn btn-primary">Log In</button>
+  </div>
+  <small id="register_info">This is an invite only site. You may not register an account without a invite link from the site administrator</small>
+</div>
 </body>
 </html>

@@ -17,6 +17,8 @@ app.use(cs({
     }
 }))
 app.use("/static", express.static("front"))
+app.set('view engine', 'ejs');
+app.set("views",require("path").join(__dirname,"./front/views"))
 
 let plugins = []
 
@@ -48,7 +50,7 @@ getFileList("./modules").forEach(m => {
 })
 
 app.get("*", (req, res) => {
-    res.sendFile(require("path").join(__dirname, "./front", "404.html"))
+    res.redirect("/error#404")
 })
 
 app.listen(config.port)

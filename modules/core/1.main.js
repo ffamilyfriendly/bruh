@@ -1,12 +1,27 @@
 const router = require("express").Router()
 const path = require("path")
+const db = require("./1.database").db
 
 router.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../front", "index.html"))
+    if(req.session && req.session.user) {
+        res.redirect("/browse/root")
+    } else {
+        res.sendFile(path.join(__dirname, "../../front", "index.html"))
+    }
 })
 
-router.get("/invite", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../front/", "invite.html"))
+router.get("/error", (req, res) => {
+    res.sendFile(path.join(__dirname, "../../front/", "error.html"))
+})
+
+router.get("/invite/:id", (req, res) => {
+    db.all(`SELECT * FROM invites WHERE id = "${req.params.id}"`,(e,rows) => {
+        if(rows[0]) {
+            res.render("invite.ejs",{invite:rows[0]})
+        } else {
+            res.redirect("/error#INVITE_NOT_EXIST")
+        }
+    })
 })
 
 router.get("/plugins",(req,res) => {
@@ -26,17 +41,6 @@ router.get("/admin", (req, res) => {
     if (!req.session.user || !req.session.user.admin) return res.status(403).send({ type: "unauthorised", data: "user cookie session does not exist or user level is less then 100" })
     res.sendFile(path.join(__dirname, "../../front/admin", "dashMain.html"))
 })
-
-router.get("/admin/:type", (req, res) => {
-    if (!req.session.user || !req.session.user.admin) return res.status(403).send({ type: "unauthorised", data: "user cookie session does not exist or user level is less then 100" })
-    res.sendFile(path.join(__dirname, "../../front/admin",`${req.params.type}.html`))
-})
-
-router.get("/watch", (req, res) => {
-    res.sendFile(path.join(__dirname, "../../front", "watch.html"))
-})
-
-
 
 module.exports = {
     type: "router",

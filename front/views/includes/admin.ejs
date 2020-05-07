@@ -1,0 +1,74 @@
+<!-- Button trigger modal -->
+<button id="adminbutton" type="button" class="btn btn-primary btn-lg rounded-circle" data-toggle="modal" data-target="#modelId">
+  +
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+            </div>
+            <div class="modal-body">
+                <div id="newCategory">
+                    <h6>Category</h6>
+                    <form method="POST" action="/api/admin/content/<%= Buffer.from(Math.random().toString()).toString("base64") %>" class="fakeform">
+                        <b>title:</b>
+                        <input name="displayname" type="text" required>
+
+                        <b>description:</b>
+                        <textarea name="description"></textarea>
+
+                        <b>thumbnail image:</b>
+                        <input name="thumbnail" type="text">
+
+                        <b>fetch metadata:</b>
+                        <input name="autometa" type="number" max="1" min="0" required>
+                        <small>(0 = false, 1 = true)</small>
+
+                        <input type="submit" class="btn btn-primary" value="create">
+
+                        <!-- HIDDEN INPUTS -->
+                        <input name="parent" type="hidden" value="<%= curr %>">
+                        <input name="type" type="hidden" value="category">
+                    </form>
+                </div>
+                <hr>
+                <div id="newMovie">
+                    <h6>Movie</h6>
+                    <form method="POST" action="/api/admin/content/<%= Buffer.from(Math.random().toString()).toString("base64") %>" class="fakeform">
+                        <b>title:</b>
+                        <input name="displayname" type="text" required>
+
+                        <b>description:</b>
+                        <textarea name="description"></textarea>
+
+                        <b>thumbnail image:</b>
+                        <input name="thumbnail" type="text">
+
+                        <b>media path:</b>
+                        <input name="path" type="text" required>
+
+                        <b>fetch metadata:</b>
+                        <input name="autometa" type="number" max="1" min="0" required>
+                        <small>(0 = false, 1 = true)</small>
+
+                        <input type="submit" class="btn btn-primary" value="create">
+
+                        <!-- HIDDEN INPUTS -->
+                        <input name="parent" type="hidden" value="<%= curr %>">
+                        <input name="type" type="hidden" value="movie">
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,45 +1,12 @@
-#mainPlayer {
+#mainVideo {
     width: 100%;
 }
-
-#video_box:target #video_overlay {
-    display: block !important;
-}
-
-#video_overlay {
-    display: none;
-    position: absolute;
-    float:left;
-    padding: 10px;
-}
-
-#metabox {
-    display: none;
-    margin: 10px;
-    padding: 10px;
-}
-
-#metabox img {
+#meta_image {
+    height: 300px;
+    margin: 5px;
     float: left;
-    width: 100%;
 }
 
-#poster_container {
-    width: 20%;
-    border: 1px solid white;
+#hasWatched {
+    display: none;
 }
-
-#metaText {
-    width: 80%;
-    padding-left: 20%;
-}
-
-
-
-@media only screen and (max-width: 985px) {
-    #poster_container {
-        display: none;
-    }
-}
-
-

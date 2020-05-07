@@ -1,7 +1,7 @@
 const router = require("express").Router()
 const conf = require("../../config")
 const fs = require("fs")
-const db = require("../core/database").db
+const db = require("../core/1.database").db
 const request = require("request")
 
 /*  This endpoint gets any metadata for the requested title.
@@ -20,6 +20,8 @@ router.get("/meta/:id",(req,res) => {
                 request(`https://api.themoviedb.org/3/search/multi?query=${movie.displayname}&api_key=${conf.metadata.api_key}`,(e, response, body) => {
                     if(body) {
                         const answer = JSON.parse(body)
+
+                        if(!answer || !answer.results) return res.status(500).send({type:"INTERNAL_ERROR",data:"could not get any metadata"})
 
                         //filter away any persons
                         answer.results = answer.results.filter(m => m.media_type !== "person")
@@ -41,9 +43,16 @@ router.get("/meta/:id",(req,res) => {
     }
 })
 
+router.delete("/admin/meta/:id",(req,res) => {
+    fs.unlink(`${conf.metadata.path}/meta.${req.params.id}.json`, (err) => {
+        if(err) return res.status(500).send({type:"INTERNAL_ERROR",data:err.message})
+        else res.status(200).send({type:"OK",data:"file deleted"})
+    })
+})
+
 module.exports = {
     type: "router", 
-    enabled:true,
+    enabled:false,
     base_url: "/api/",
     router: router,
     meta: {
