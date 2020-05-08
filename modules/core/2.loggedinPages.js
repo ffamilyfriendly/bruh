@@ -12,7 +12,10 @@ router.get("/watch",(req,res) => {
     if(!req.query.v) return res.redirect("/")
     db.all(`SELECT * FROM content WHERE id = "${req.query.v}" AND type = "movie"`,(err,data) => {
         if(err) return res.status(500).send({type:"INTERNAL_ERROR",data:err.message})
-        else res.render("watch",{user:req.query.user,movie:data[0],sessionid:req.sessionID})
+        else {
+            if(!data[0]) return res.redirect("/error#404")
+            res.render("watch",{user:req.query.user,movie:data[0],sessionid:req.sessionID})
+        }
     })
 })
 
