@@ -11,8 +11,13 @@ const dispMovieInf = (movie) => {
         } catch(err) {
             if(err) console.log({err,data})
         }
-        
-        $("#mvinf_title").text(data.title)
+
+        $("#mvinf_title").text(data.title||"no title found")
+        $("#mvinf_image").attr("src",`https://image.tmdb.org/t/p/w600_and_h900_bestv2${data.poster_path}`)
+        $("#mvinf_backdrop").attr("src",`https://image.tmdb.org/t/p/original${data.backdrop_path}`)
+        $("#mvinf_desc").text(data.overview)
+        $("#mvinf_release").text(data.release_date||"none found")
+        $("#mvinf_ratings").text(data.vote_average||"none found")
     })
     .fail(err => {
         console.log(err)
@@ -57,7 +62,7 @@ const fixMeta = (it) => {
         try {
             data = JSON.parse(data)
         } catch(err) {
-            if(err) console.log({err,data})
+            if(err) console.log({check:`Could not fetch parse metadata. Is the module enabled?`,data})
         }
         
         it.find("[data-role='thumbnail']").attr("src",`https://image.tmdb.org/t/p/w600_and_h900_bestv2${data.poster_path}`)
@@ -70,6 +75,7 @@ const fixMeta = (it) => {
 }
 
 $(document).ready(() => {
+    console.log("Hello! \n//JH 07/10 -20")
     $("div").find("[data-autometa='1']").each(function() {
         fixMeta(this)
     })

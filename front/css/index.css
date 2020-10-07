@@ -13,7 +13,7 @@
 
 #login_pad input {
     display: block;
-    margin: 10px;
+    margin-bottom: 10px;
     border: none;
     padding: 5px;
     border-radius: 3px;
@@ -26,3 +26,17 @@
 #loggedin_success, #loggedin_error {
     display: none;
 }
+
+@media only screen and (max-width: 600px) {
+    #login_pad {
+        width: 90%;
+    }
+
+    #login_pad input {
+        width: 100%;
+    }
+
+    #loggedin_success, #loggedin_error {
+        width: 90%;
+    }
+  }

@@ -52,7 +52,7 @@ router.delete("/admin/meta/:id",(req,res) => {
 
 module.exports = {
     type: "router", 
-    enabled:false,
+    enabled:true,
     base_url: "/api/",
     router: router,
     meta: {

@@ -9,6 +9,19 @@
             </div>
             <div class="modal-body">
                 <ul class="list-group">
+                    <div id="mvinf_container">
+                        <img id="mvinf_image">
+                        <img id="mvinf_backdrop">
+                    </div>
+                    <h5>overview</h5>
+                    <span id="mvinf_desc"></span>
+                    <h5>meta</h5>
+                    <ul>
+                        <li><b>release date: </b><span id="mvinf_release"></span></li>
+                        <li><b>reatings: </b><span id="mvinf_ratings"></span>/10</li>
+                    </ul>
+                    <hr>
+                    <h5>Actions</h5>
                     <li class="list-group-item"> <a id="mvinf_play" href=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path style="fill: var(--success)" d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-3 17v-10l9 5.146-9 4.854z"/></svg> play</li></a>
                     <% if(user.admin) { %>
                     <li class="list-group-item"><a class="text-danger" onclick="delContent()" href="#">delete</a></li>

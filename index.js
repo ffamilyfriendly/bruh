@@ -5,7 +5,6 @@ const cs = require("express-session")
 const store = new cs.MemoryStore()
 const getFileList = require("./lib/loader")
 
-
 app.use(require("body-parser").urlencoded({ extended: true }))
 app.use(cs({
     secret: config.cookie_secret,
@@ -53,4 +52,17 @@ app.get("*", (req, res) => {
     res.redirect("/error#404")
 })
 
-app.listen(config.port)
+app.listen(config.port, () => {
+console.log(`
+ _                _     
+| |__  _ __ _   _| |__  
+| '_ \\| '__| | | | '_ \\ 
+| |_) | |  | |_| | | | |
+|_.__/|_|   \\__,_|_| |_|
+########################
+Port: ${config.port}
+Pid: ${process.pid}
+Any issues? Report them on the repo with log.
+
+Thank you for using BRUH!`)
+})
